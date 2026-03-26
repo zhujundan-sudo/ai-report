@@ -1,0 +1,255 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AI 行业全景日报 - 2026-03-26</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        :root { --primary: #1a1a1a; --accent: #0066cc; --bg: #f8f9fa; --card-bg: #ffffff; --text: #333333; --text-light: #666666; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: var(--bg); color: var(--text); margin: 0; padding-bottom: 60px; 
+            line-height: 1.75; -webkit-font-smoothing: antialiased; font-size: 16px;
+        }
+        
+        .nav-bar { 
+            background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px);
+            position: sticky; top: 0; z-index: 1000; 
+            display: flex; justify-content: center; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            overflow-x: auto; white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
+        }
+        .nav-item { 
+            padding: 16px 24px; cursor: pointer; color: var(--text-light); 
+            font-weight: 600; font-size: 15px; border-bottom: 2px solid transparent; 
+            transition: all 0.3s ease;
+        }
+        .nav-item.active { color: var(--accent); border-bottom-color: var(--accent); }
+        
+        .container { max-width: 960px; margin: 20px auto; padding: 0 16px; }
+        
+        .header { 
+            text-align: center; margin: 30px 0 40px; padding: 40px 20px; 
+            background: linear-gradient(135deg, #0052cc 0%, #003366 100%); 
+            color: white; border-radius: 16px; 
+            box-shadow: 0 10px 20px rgba(0,82,204,0.15);
+        }
+        .header h1 { margin: 0 0 10px; font-size: 26px; }
+        .header p { opacity: 0.8; font-size: 14px; margin: 0; font-family: monospace; }
+        
+        .tab-content { display: none; animation: fadeIn 0.4s ease-out; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .card { 
+            background: var(--card-bg); border-radius: 16px; padding: 24px; 
+            margin-bottom: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); 
+            border: 1px solid rgba(0,0,0,0.03);
+        }
+        .card h3 { 
+            margin-top: 0; color: var(--primary); font-size: 20px; 
+            margin-bottom: 20px; font-weight: 700; position: relative; padding-left: 14px;
+        }
+        .card h3::before {
+            content: ''; position: absolute; left: 0; top: 4px; bottom: 4px;
+            width: 4px; background: var(--accent); border-radius: 2px;
+        }
+        
+        ul { padding-left: 0; list-style-position: inside; }
+        li { margin-bottom: 12px; color: #444; position: relative; padding-left: 20px; list-style: none;}
+        li::before {
+            content: "•"; color: var(--accent); font-weight: bold; 
+            position: absolute; left: 0; top: 0;
+        }
+        strong { color: #000; font-weight: 700; background: rgba(0,102,204,0.05); padding: 0 4px; border-radius: 4px; }
+        
+        .news-ref { 
+            font-size: 12px; color: var(--accent); text-decoration: none; 
+            margin-left: 4px; background: rgba(0,102,204,0.08); 
+            padding: 2px 6px; border-radius: 4px; vertical-align: middle;
+        }
+        .source-btn { 
+            display: inline-block; padding: 4px 8px; border-radius: 6px; 
+            text-decoration: none; font-size: 11px; margin-right: 4px; 
+            color: white; font-weight: 600; white-space: nowrap;
+        }
+        .src-ph { background-color: #da552f; } .src-tf { background-color: #27ae60; } 
+        .src-ta { background-color: #8e44ad; } .src-hf { background-color: #f39c12; }
+        
+        .table-wrapper { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 10px; }
+        .tools-table { width: 100%; min-width: 600px; border-collapse: separate; border-spacing: 0; }
+        .tools-table th { 
+            background: #f4f6f8; padding: 14px 10px; text-align: left; 
+            color: #666; font-size: 13px; border-bottom: 2px solid #eee;
+        }
+        .tools-table td { padding: 16px 10px; border-bottom: 1px solid #f0f0f0; vertical-align: top; }
+        
+        .tool-name-link { font-weight: 700; color: #333; text-decoration: none; font-size: 15px; }
+        .tool-hot { color: #ff3b30; font-weight: 700; font-family: monospace; }
+        .tool-cat { background: #e3f2fd; color: #0277bd; padding: 4px 8px; border-radius: 6px; font-size: 12px; display: inline-block; }
+        
+        .analysis-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+        .chart-row { display: flex; gap: 20px; margin-bottom: 20px; }
+        .chart-box { flex: 1; background: white; padding: 15px; border-radius: 12px; height: 350px; min-height: 350px; border: 1px solid #eee; }
+        
+        /* 📱 移动端适配核心代码 📱 */
+        @media (max-width: 768px) {
+            body { font-size: 15px; }
+            .container { padding: 0 12px; margin: 15px auto; }
+            .header { padding: 30px 15px; margin-bottom: 25px; }
+            .header h1 { font-size: 22px; }
+            .nav-item { padding: 14px 16px; font-size: 14px; }
+            .card { padding: 20px 16px; border-radius: 12px; }
+            
+            /* 强制单列布局 */
+            .analysis-grid { grid-template-columns: 1fr; gap: 24px; }
+            .chart-row { flex-direction: column; gap: 20px; }
+            .chart-box { height: 300px; min-height: 300px; }
+            
+            /* --- 话题聚合表格：移动端卡片化重构 --- */
+            /* 1. 强制表格块状显示，允许宽度自适应 */
+            .topic-table { display: block; width: 100%; min-width: 100% !important; }
+            /* 2. 隐藏表头 */
+            .topic-table thead { display: none; }
+            .topic-table tbody { display: block; }
+            /* 3. 每一行变成一个独立的卡片 */
+            .topic-table tr { 
+                display: flex; flex-direction: column; 
+                background: #fff; 
+                border: 1px solid #e1e4e8; border-radius: 12px; 
+                margin-bottom: 20px; padding: 16px;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+            }
+            /* 4. 单元格强制换行 */
+            .topic-table td { 
+                display: block; width: 100% !important; 
+                padding: 0 !important; border: none !important; 
+            }
+            /* 5. 话题标题样式优化 */
+            .topic-table td:first-child {
+                font-size: 18px; line-height: 1.4;
+                margin-bottom: 12px; padding-bottom: 12px !important;
+                border-bottom: 1px solid #f0f2f5 !important;
+                background: transparent;
+            }
+            /* 6. 话题内容列表样式优化 */
+            .topic-table td:last-child ul { margin: 0; padding-left: 0; }
+            .topic-table td:last-child li { 
+                background: #f9fafb; padding: 10px 12px; 
+                border-radius: 8px; margin-bottom: 8px;
+                padding-left: 12px; 
+            }
+            .topic-table td:last-child li::before { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚀 AI 行业全景日报</h1>
+        <p>2026-03-26 | 移动端极致适配版</p>
+    </div>
+    
+    <div class="nav-bar">
+        <div class="nav-item active" onclick="switchTab('tab1', this)">🔍 交叉分析</div>
+        <div class="nav-item" onclick="switchTab('tab2', this)">📰 话题聚合</div>
+        <div class="nav-item" onclick="switchTab('tab3', this)">🛠️ 选品库</div>
+    </div>
+    
+    <div class="container">
+        <div id="tab1" class="tab-content active">
+            <div class="card">
+                <h3>📈 深度洞察：技术 x 产品</h3>
+                <div style="font-size: 1.05em; color: #2c3e50;"><p>当前AI行业正经历从“大模型军备竞赛”向“Agent产品化落地”的深刻范式转移。DeepSeek大规模招聘Agent人才<a href="https://www.qbitai.com/2026/03/392024.html" target="_blank" class="news-ref">[量子位]</a>与Sora的意外关停<a href="https://www.qbitai.com/2026/03/391799.html" target="_blank" class="news-ref">[量子位]</a>,<a href="https://www.jiqizhixin.com/articles/2026-03-25-2" target="_blank" class="news-ref">[机器之心]</a>构成了鲜明对比，这预示着行业不再盲目追求单一的长视频生成神话，而是转向能够实际交付业务价值的智能体。技术层面上，单纯的文本生成已无法满足市场，视触觉世界模型如OmniVTA<a href="https://www.qbitai.com/2026/03/392105.html" target="_blank" class="news-ref">[量子位]</a>,<a href="https://www.jiqizhixin.com/articles/2026-03-25-14" target="_blank" class="news-ref">[机器之心]</a>的发布，标志着具身智能正从实验室走向茶艺<a href="https://www.qbitai.com/2026/03/392121.html" target="_blank" class="news-ref">[量子位]</a>、精密工业等实际场景。这种技术进步直接催生了工具层面的爆发，例如针对长程任务和记忆痛点的<strong>ByteRover Memory System for OpenClaw</strong><a href="https://www.producthunt.com/products/byterover" target="_blank" class="news-ref" style="background:rgba(255,159,67,0.15);color:#e67e22">🔗</a>和<strong>Query Memory</strong><a href="https://www.producthunt.com/products/query-memory" target="_blank" class="news-ref" style="background:rgba(255,159,67,0.15);color:#e67e22">🔗</a>，它们将新闻中的“长文本优化”技术转化为解决AI“失忆”问题的实用工具。同时，中国AI音乐模型如Mureka V8<a href="https://www.qbitai.com/2026/03/391839.html" target="_blank" class="news-ref">[量子位]</a>,<a href="https://www.jiqizhixin.com/articles/2026-03-25-13" target="_blank" class="news-ref">[机器之心]</a>在国际榜单的登顶，说明在垂直多模态领域，应用层的创新（如<strong>YingMusic-Singer</strong><a href="https://huggingface.co/spaces/ASLP-lab/YingMusic-Singer" target="_blank" class="news-ref" style="background:rgba(255,159,67,0.15);color:#e67e22">🔗</a>）正成为新的增长极。这一轮“龙虾热”<a href="https://www.qbitai.com/2026/03/392128.html" target="_blank" class="news-ref">[量子位]</a>,<a href="https://www.jiqizhixin.com/articles/2026-03-25-7" target="_blank" class="news-ref">[机器之心]</a>本质上是用户对Agent自主执行能力的初次大规模集体反馈，工具如<strong>Manus Agents for Telegram</strong><a href="https://www.producthunt.com/products/manus-agents-for-telegram" target="_blank" class="news-ref" style="background:rgba(255,159,67,0.15);color:#e67e22">🔗</a>正是在这种背景下将复杂的LLM能力封装成了易用的端侧服务。</p></div>
+                <div style="margin-top: 25px; padding-top: 20px; border-top: 1px dashed #eee;">
+                    <h4 style="margin: 0 0 15px; color: var(--accent);">🗝️ 关键转化趋势</h4>
+                    <ul><li><strong>Agent产品化与商业化加速</strong>：从纯研究向产品研发倾斜，重点解决智能体在特定垂直场景（如差旅、招聘）的闭环执行。</li><li><strong>具身智能的多模态感知进化</strong>：机器人技术从单一视觉感知转向视触觉融合，强化在复杂物理环境下的交互精度。</li><li><strong>长程记忆与知识对齐成为核心壁垒</strong>：企业级应用对AI的连续性要求极高，KV Cache优化与专用记忆系统成为刚需。</li><li><strong>多模态应用的“中国溢价”</strong>：在视频、音乐等细分多模态赛道，国产大模型展现出极强的全球竞争力。</li></ul>
+                </div>
+            </div>
+        </div>
+        
+        <div id="tab2" class="tab-content">
+            <div class="card">
+                <h3>🔥 全网话题深度聚合</h3>
+                <table class="tools-table topic-table">
+                    <thead><tr><th style="width:25%">热门话题</th><th>核心动态梳理</th></tr></thead>
+                    <tbody><tr><td style='font-weight:700;color:#0052cc;vertical-align:top'>#Agent与智能体经济</td><td><ul><li>DeepSeek开启大规模Agent方向招聘，标志着核心战略向智能体产品化倾斜 <a href="https://www.qbitai.com/2026/03/392024.html" target="_blank" class="news-ref">[量子位]</a>。</li><li>“龙虾热”席卷社交平台，WorkBuddy等Agent工具成为职场提效新宠 <a href="https://www.qbitai.com/2026/03/391894.html" target="_blank" class="news-ref">[量子位]</a>,<a href="https://www.jiqizhixin.com/articles/2026-03-25-7" target="_blank" class="news-ref">[机器之心]</a>。</li><li>阿里云JVS Claw与飞猪flyai skill全面开放，生态接入加速 <a href="https://www.qbitai.com/2026/03/391890.html" target="_blank" class="news-ref">[量子位]</a>,<a href="https://www.qbitai.com/2026/03/391830.html" target="_blank" class="news-ref">[量子位]</a>。</li><li>Sierra发布自助式Agent构建产品，降低企业开发门槛 <a href="https://www.theinformation.com/briefings/ai-startup-sierra-unveils-self-service-agent-building-product" target="_blank" class="news-ref">[Theinformation]</a>。</li></ul></td></tr><tr><td style='font-weight:700;color:#0052cc;vertical-align:top'>#多模态与Sora退场</td><td><ul><li>OpenAI意外宣布关停Sora应用，标志着第一波视频生成热潮的阶段性调整 <a href="https://www.qbitai.com/2026/03/391799.html" target="_blank" class="news-ref">[量子位]</a>,<a href="https://www.jiqizhixin.com/articles/2026-03-25-2" target="_blank" class="news-ref">[机器之心]</a>。</li><li>中国AI音乐模型Mureka V8登顶全球榜单，在人声与器乐领域实现双料第一 <a href="https://www.qbitai.com/2026/03/391839.html" target="_blank" class="news-ref">[量子位]</a>,<a href="https://www.jiqizhixin.com/articles/2026-03-25-13" target="_blank" class="news-ref">[机器之心]</a>。</li><li>Google发布Lyria 3 Pro，持续扩张AI音乐创作生态 <a href="https://techcrunch.com/2026/03/25/google-launches-lyria-3-pro-music-generation-model/" target="_blank" class="news-ref">[TechCrunch]</a>。</li></ul></td></tr><tr><td style='font-weight:700;color:#0052cc;vertical-align:top'>#具身智能与机器人革命</td><td><ul><li>OmniVTA视触觉世界模型发布，实现从“被动感知”到“理解接触”的跨越 <a href="https://www.qbitai.com/2026/03/392105.html" target="_blank" class="news-ref">[量子位]</a>,<a href="https://www.jiqizhixin.com/articles/2026-03-25-14" target="_blank" class="news-ref">[机器之心]</a>。</li><li>睿尔曼茶艺机器人亮相中关村论坛，具身智能走进现实生活场景 <a href="https://www.qbitai.com/2026/03/392121.html" target="_blank" class="news-ref">[量子位]</a>。</li><li>非夕科技发布Enlight系列自适应机器人，探索通用智能机器人边界 <a href="https://www.jiqizhixin.com/articles/2026-03-25-4" target="_blank" class="news-ref">[机器之心]</a>。</li><li>USC团队开源通用人形机器人基座模型Ψ₀ <a href="https://www.jiqizhixin.com/articles/2026-03-25-8" target="_blank" class="news-ref">[机器之心]</a>。</li></ul></td></tr><tr><td style='font-weight:700;color:#0052cc;vertical-align:top'>#安全、法律与基座模型优化</td><td><ul><li>LiteLLM库被投毒事件引发全行业对Python供应链安全的关注 <a href="https://www.jiqizhixin.com/articles/2026-03-25-6" target="_blank" class="news-ref">[机器之心]</a>。</li><li>微软因OpenAI合作面临马斯克250亿美元索赔诉讼的新进展 <a href="https://www.theinformation.com/briefings/judge-approves-testimony-microsoft-owe-elon-musk-25-billion" target="_blank" class="news-ref">[Theinformation]</a>。</li><li>Arm发布面向AGI智能体的专用数据中心芯片 <a href="https://www.jiqizhixin.com/articles/2026-03-25-11" target="_blank" class="news-ref">[机器之心]</a>。</li><li>Meta与Google在社交媒体成瘾诉讼中被判定负有责任 <a href="https://techcrunch.com/2026/03/25/jury-finds-meta-and-youtube-negligent-in-landmark-social-media-addiction-trial/" target="_blank" class="news-ref">[TechCrunch]</a>,<a href="https://www.theinformation.com/briefings/meta-youtube-found-liable-landmark-social-media-addiction-case" target="_blank" class="news-ref">[Theinformation]</a>。</li></ul></td></tr></tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div id="tab3" class="tab-content">
+            <div class="chart-row">
+                <div id="chart-bar" class="chart-box"></div>
+                <div id="chart-line" class="chart-box"></div>
+            </div>
+            
+            <div class="card">
+                <h3>👥 用户画像与机会点</h3>
+                <div class="analysis-grid">
+                    <div><h4 style="color:#2980b9; margin-bottom:10px;">📊 市场风向</h4><ul><li>市场对高并发、长记忆的Agent需求激增，开发者开始通过 <strong>ByteRover Memory System for OpenClaw</strong><a href="https://www.producthunt.com/products/byterover" target="_blank" class="news-ref" style="background:rgba(255,159,67,0.15);color:#e67e22">🔗</a> 这样的系统级插件来增强基础模型的性能。</li><li>自动化办公与个人助理场景高度活跃，例如 <strong>Manus Agents for Telegram</strong><a href="https://www.producthunt.com/products/manus-agents-for-telegram" target="_blank" class="news-ref" style="background:rgba(255,159,67,0.15);color:#e67e22">🔗</a> 成功将大模型能力下沉至即时通讯工具。</li><li>移动端与浏览器端的端侧AI逐渐流行，<strong>Google Gemini in Chrome</strong><a href="https://www.producthunt.com/products/googlegemini-in-chrome" target="_blank" class="news-ref" style="background:rgba(255,159,67,0.15);color:#e67e22">🔗</a> 和 <strong>Voxtral Realtime WebGPU</strong><a href="https://huggingface.co/spaces/mistralai/Voxtral-Realtime-WebGPU" target="_blank" class="news-ref" style="background:rgba(255,159,67,0.15);color:#e67e22">🔗</a> 降低了云端推理成本。</li></ul></div>
+                    <div><h4 style="color:#c0392b; margin-bottom:10px;">😡 用户痛点</h4><ul><li>针对企业级部署中AI“失忆”导致的数据偏差，<strong>Query Memory</strong><a href="https://www.producthunt.com/products/query-memory" target="_blank" class="news-ref" style="background:rgba(255,159,67,0.15);color:#e67e22">🔗</a> 和 <strong>Context Overflow</strong><a href="https://www.producthunt.com/products/context-overflow" target="_blank" class="news-ref" style="background:rgba(255,159,67,0.15);color:#e67e22">🔗</a> 提供了精准的上下文对齐方案。</li><li>开发者在优化模型推理效率时常面临显存与速度的平衡问题，<strong>TurboQuant</strong><a href="https://www.producthunt.com/products/turboquant" target="_blank" class="news-ref" style="background:rgba(255,159,67,0.15);color:#e67e22">🔗</a> 提供了有效的内存压缩算法。</li><li>AI供应链安全漏洞频发，<strong>ClawSecure</strong><a href="https://www.producthunt.com/products/clawsecure" target="_blank" class="news-ref" style="background:rgba(255,159,67,0.15);color:#e67e22">🔗</a> 和 <strong>AISafe - Source code audit</strong><a href="https://www.producthunt.com/products/aisafe-source-code-audit" target="_blank" class="news-ref" style="background:rgba(255,159,67,0.15);color:#e67e22">🔗</a> 成为团队保护代码资产的必要工具。</li></ul></div>
+                    <div><h4 style="color:#27ae60; margin-bottom:10px;">😍 产品爽点</h4><ul><li><strong>Replit Agent 4</strong><a href="https://www.producthunt.com/products/replit-agent-4" target="_blank" class="news-ref" style="background:rgba(255,159,67,0.15);color:#e67e22">🔗</a> 的自动化代码生成能力让初学者也能快速搭建完整应用，极大提升了开发爽感。</li><li>视频与图像编辑的实时性提升，<strong>Wan2.2 14B Fast</strong><a href="https://huggingface.co/spaces/zerogpu-aoti/wan2-2-fp8da-aoti-faster" target="_blank" class="news-ref" style="background:rgba(255,159,67,0.15);color:#e67e22">🔗</a> 让高质量生成不再需要漫长等待。</li><li><strong>Omni Video Factory</strong><a href="https://huggingface.co/spaces/FrameAI4687/Omni-Video-Factory" target="_blank" class="news-ref" style="background:rgba(255,159,67,0.15);color:#e67e22">🔗</a> 提供的一站式视频生成、扩展与编辑能力，为创意工作者提供了全流程的AI赋能。</li></ul></div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>🧰 精选新工具 (Top 30)</h3>
+                <div class="table-wrapper">
+                    <table class="tools-table">
+                        <thead>
+                            <tr>
+                                <th style="min-width:120px">工具名称</th>
+                                <th style="min-width:80px">来源</th>
+                                <th style="min-width:60px">热度</th>
+                                <th style="min-width:100px">类型</th>
+                                <th style="min-width:200px">简介</th>
+                            </tr>
+                        </thead>
+                        <tbody><tr><td><a href='https://www.producthunt.com/products/stitch-2-0-by-google-2' target='_blank' class='tool-name-link'>Stitch 2.0 by Google</a></td><td><span class='source-btn src-ph'>ProductHunt</span></td><td><span class='tool-hot'>772</span></td><td><span class='tool-cat'>🎨 AI绘画/设计</span></td><td style='font-size:14px;color:#555;line-height:1.6'>在</td></tr><tr><td><a href='https://www.producthunt.com/products/mulerun' target='_blank' class='tool-name-link'>MuleRun</a></td><td><span class='source-btn src-ph'>ProductHunt</span></td><td><span class='tool-hot'>675</span></td><td><span class='tool-cat'>🧠 通用AI应用</span></td><td style='font-size:14px;color:#555;line-height:1.6'>在</td></tr><tr><td><a href='https://www.producthunt.com/products/claude' target='_blank' class='tool-name-link'>Claude Dispatch</a></td><td><span class='source-btn src-ph'>ProductHunt</span></td><td><span class='tool-hot'>672</span></td><td><span class='tool-cat'>📅 效率/生产力</span></td><td style='font-size:14px;color:#555;line-height:1.6'>在</td></tr><tr><td><a href='https://www.producthunt.com/products/tobira-ai' target='_blank' class='tool-name-link'>Tobira.ai</a></td><td><span class='source-btn src-ph'>ProductHunt</span></td><td><span class='tool-hot'>653</span></td><td><span class='tool-cat'>🧠 通用AI应用</span></td><td style='font-size:14px;color:#555;line-height:1.6'>在</td></tr><tr><td><a href='https://www.producthunt.com/products/claude' target='_blank' class='tool-name-link'>Claude Computer Use</a></td><td><span class='source-btn src-ph'>ProductHunt</span></td><td><span class='tool-hot'>629</span></td><td><span class='tool-cat'>📅 效率/生产力</span></td><td style='font-size:14px;color:#555;line-height:1.6'>在</td></tr><tr><td><a href='https://theresanaiforthat.com/ai/the-librarian/' target='_blank' class='tool-name-link'>TheLibrarian.io</a></td><td><span class='source-btn src-ta'>TAAFT</span></td><td><span class='tool-hot'>613,143</span></td><td><span class='tool-cat'>🧠 通用AI应用</span></td><td style='font-size:14px;color:#555;line-height:1.6'>Error 500 (Server Error)!!1500.That’s an error.There was an error. Please try again later.That’s all we know.</td></tr><tr><td><a href='https://theresanaiforthat.com/ai/freebeat-ai-video-generator/' target='_blank' class='tool-name-link'>freebeat AI </a></td><td><span class='source-btn src-ta'>TAAFT</span></td><td><span class='tool-hot'>466,263</span></td><td><span class='tool-cat'>🗣️ 语音/数字人</span></td><td style='font-size:14px;color:#555;line-height:1.6'>Error 500 (Server Error)!!1500.That’s an error.There was an error. Please try again later.That’s all we know.</td></tr><tr><td><a href='https://theresanaiforthat.com/ai/kirkify-co/' target='_blank' class='tool-name-link'>Kirkify AI Images Generator</a></td><td><span class='source-btn src-ta'>TAAFT</span></td><td><span class='tool-hot'>343,500</span></td><td><span class='tool-cat'>🎥 视频生成/处理</span></td><td style='font-size:14px;color:#555;line-height:1.6'>创建超现实的查理·柯克换脸表情包。</td></tr><tr><td><a href='https://theresanaiforthat.com/ai/jason-ai/' target='_blank' class='tool-name-link'>Jason AI</a></td><td><span class='source-btn src-ta'>TAAFT</span></td><td><span class='tool-hot'>308,105</span></td><td><span class='tool-cat'>🧠 通用AI应用</span></td><td style='font-size:14px;color:#555;line-height:1.6'>用于 B2B 销售推广的 AI 助手</td></tr><tr><td><a href='https://theresanaiforthat.com/ai/tendem/' target='_blank' class='tool-name-link'>Tendem</a></td><td><span class='source-btn src-ta'>TAAFT</span></td><td><span class='tool-hot'>242,796</span></td><td><span class='tool-cat'>🤖 智能体/RPA</span></td><td style='font-size:14px;color:#555;line-height:1.6'>Error 500 (Server Error)!!1500.That’s an error.There was an error. Please try again later.That’s all we know.</td></tr><tr><td><a href='https://huggingface.co/spaces/hysts/ControlNet' target='_blank' class='tool-name-link'>ControlNet</a></td><td><span class='source-btn src-hf'>HuggingFace</span></td><td><span class='tool-hot'>998</span></td><td><span class='tool-cat'>🚀 模型/开发空间</span></td><td style='font-size:14px;color:#555;line-height:1.6'>Error 500 (Server Error)!!1500.That’s an error.There was an error. Please try again later.That’s all we know.</td></tr><tr><td><a href='https://huggingface.co/spaces/gokaygokay/Tile-Upscaler' target='_blank' class='tool-name-link'>Tile Upscaler</a></td><td><span class='source-btn src-hf'>HuggingFace</span></td><td><span class='tool-hot'>983</span></td><td><span class='tool-cat'>🚀 模型/开发空间</span></td><td style='font-size:14px;color:#555;line-height:1.6'>利用 AI controlnet 增强和提升图像质量</td></tr><tr><td><a href='https://huggingface.co/spaces/Sanster/Lama-Cleaner-lama' target='_blank' class='tool-name-link'>Lama Cleaner Lama</a></td><td><span class='source-btn src-hf'>HuggingFace</span></td><td><span class='tool-hot'>977</span></td><td><span class='tool-cat'>🚀 模型/开发空间</span></td><td style='font-size:14px;color:#555;line-height:1.6'>使用人工智能修复来清理和编辑图像</td></tr><tr><td><a href='https://huggingface.co/spaces/fancyfeast/joy-caption-beta-one' target='_blank' class='tool-name-link'>Joy Caption Beta One</a></td><td><span class='source-btn src-hf'>HuggingFace</span></td><td><span class='tool-hot'>969</span></td><td><span class='tool-cat'>🚀 模型/开发空间</span></td><td style='font-size:14px;color:#555;line-height:1.6'>为任何图像生成详细的标题</td></tr><tr><td><a href='https://huggingface.co/spaces/TTS-AGI/TTS-Arena-V2' target='_blank' class='tool-name-link'>TTS Arena V2</a></td><td><span class='source-btn src-hf'>HuggingFace</span></td><td><span class='tool-hot'>941</span></td><td><span class='tool-cat'>🚀 模型/开发空间</span></td><td style='font-size:14px;color:#555;line-height:1.6'>投票选出最新的 TTS 模型！</td></tr><tr><td><a href='https://www.toolify.ai/tool/chatpdf' target='_blank' class='tool-name-link'>ChatPDF</a></td><td><span class='source-btn src-tf'>Toolify</span></td><td><span class='tool-hot'>-</span></td><td><span class='tool-cat'>🧠 通用AI应用</span></td><td style='font-size:14px;color:#555;line-height:1.6'>Error 500 (Server Error)!!1500.That’s an error.There was an error. Please try again later.That’s all we know.</td></tr><tr><td><a href='https://www.toolify.ai/tool/ideaape' target='_blank' class='tool-name-link'>IdeaApe</a></td><td><span class='source-btn src-tf'>Toolify</span></td><td><span class='tool-hot'>-</span></td><td><span class='tool-cat'>👨‍💻 编程/开发</span></td><td style='font-size:14px;color:#555;line-height:1.6'>人工智能市场研究工具使用 Reddit 数据进行品牌战略和验证。</td></tr><tr><td><a href='https://www.toolify.ai/tool/openai-sora' target='_blank' class='tool-name-link'>Sora</a></td><td><span class='source-btn src-tf'>Toolify</span></td><td><span class='tool-hot'>-</span></td><td><span class='tool-cat'>🎥 视频生成/处理</span></td><td style='font-size:14px;color:#555;line-height:1.6'>AI 模型从文本、图像或现有视频创建逼真的视频。</td></tr><tr><td><a href='https://www.toolify.ai/tool/perplexity-ai' target='_blank' class='tool-name-link'>Perplexity AI</a></td><td><span class='source-btn src-tf'>Toolify</span></td><td><span class='tool-hot'>-</span></td><td><span class='tool-cat'>🔍 搜索/研究</span></td><td style='font-size:14px;color:#555;line-height:1.6'>下载 Comet 并免费获取 Perplexity Pro。</td></tr><tr><td><a href='https://www.toolify.ai/tool/leonardo-ai' target='_blank' class='tool-name-link'>Leonardo.Ai</a></td><td><span class='source-btn src-tf'>Toolify</span></td><td><span class='tool-hot'>-</span></td><td><span class='tool-cat'>🧠 通用AI应用</span></td><td style='font-size:14px;color:#555;line-height:1.6'>人工智能平台，用于以速度和风格一致性生成生产质量的创意资产。</td></tr><tr><td><a href='https://theresanaiforthat.com/ai/intuo/' target='_blank' class='tool-name-link'>Intuo - AI Sales Intelligence Brief</a></td><td><span class='source-btn src-ta'>TAAFT</span></td><td><span class='tool-hot'>210,118</span></td><td><span class='tool-cat'>🧠 通用AI应用</span></td><td style='font-size:14px;color:#555;line-height:1.6'>由人工智能驱动的每日简报告诉您什么重要以及为什么重要</td></tr><tr><td><a href='https://theresanaiforthat.com/ai/base44/' target='_blank' class='tool-name-link'>Base44</a></td><td><span class='source-btn src-ta'>TAAFT</span></td><td><span class='tool-hot'>188,499</span></td><td><span class='tool-cat'>👨‍💻 编程/开发</span></td><td style='font-size:14px;color:#555;line-height:1.6'>让我们让您的梦想成为现实。现在。</td></tr><tr><td><a href='https://theresanaiforthat.comhttps://agendahero.com/magic?ref=taaft&utm_source=taaft&utm_medium=referral' target='_blank' class='tool-name-link'>Agenda Hero</a></td><td><span class='source-btn src-ta'>TAAFT</span></td><td><span class='tool-hot'>173,729</span></td><td><span class='tool-cat'>📅 效率/生产力</span></td><td style='font-size:14px;color:#555;line-height:1.6'>将任何事情变成日历事件</td></tr><tr><td><a href='https://theresanaiforthat.com/ai/supernormal/' target='_blank' class='tool-name-link'>Supernormal App</a></td><td><span class='source-btn src-ta'>TAAFT</span></td><td><span class='tool-hot'>160,898</span></td><td><span class='tool-cat'>📅 效率/生产力</span></td><td style='font-size:14px;color:#555;line-height:1.6'>人工智能助手应用程序可将会议变成已完成的工作</td></tr><tr><td><a href='https://theresanaiforthat.com/ai/scottie/' target='_blank' class='tool-name-link'>Scottie — Read Less, Know More | $12/mo Newsletter AI</a></td><td><span class='source-btn src-ta'>TAAFT</span></td><td><span class='tool-hot'>153,145</span></td><td><span class='tool-cat'>📝 写作/内容</span></td><td style='font-size:14px;color:#555;line-height:1.6'>阅读新闻速度提高 30 倍</td></tr><tr><td><a href='https://theresanaiforthat.com/ai/eleven-labs/' target='_blank' class='tool-name-link'>ElevenLabs</a></td><td><span class='source-btn src-ta'>TAAFT</span></td><td><span class='tool-hot'>151,356</span></td><td><span class='tool-cat'>🧠 通用AI应用</span></td><td style='font-size:14px;color:#555;line-height:1.6'>创建栩栩如生的人工智能声音，讲述引人入胜的故事。</td></tr><tr><td><a href='https://theresanaiforthat.com/ai/biela-dev/' target='_blank' class='tool-name-link'>biela.dev</a></td><td><span class='source-btn src-ta'>TAAFT</span></td><td><span class='tool-hot'>126,606</span></td><td><span class='tool-cat'>👨‍💻 编程/开发</span></td><td style='font-size:14px;color:#555;line-height:1.6'>如果你能想象得到，Biela 就能编码！</td></tr><tr><td><a href='https://theresanaiforthat.com/ai/recall/' target='_blank' class='tool-name-link'>Recall</a></td><td><span class='source-btn src-ta'>TAAFT</span></td><td><span class='tool-hot'>111,504</span></td><td><span class='tool-cat'>📝 写作/内容</span></td><td style='font-size:14px;color:#555;line-height:1.6'>总结一切，不要忘记！</td></tr><tr><td><a href='https://theresanaiforthat.com/ai/rabbitholes-ai/' target='_blank' class='tool-name-link'>Rabbitholes AI</a></td><td><span class='source-btn src-ta'>TAAFT</span></td><td><span class='tool-hot'>111,251</span></td><td><span class='tool-cat'>💬 聊天/伴侣</span></td><td style='font-size:14px;color:#555;line-height:1.6'>在无限画布上与 AI 模型聊天</td></tr><tr><td><a href='https://theresanaiforthat.com/ai/disclaimr/' target='_blank' class='tool-name-link'>Disclaimr AI</a></td><td><span class='source-btn src-ta'>TAAFT</span></td><td><span class='tool-hot'>107,921</span></td><td><span class='tool-cat'>🧠 通用AI应用</span></td><td style='font-size:14px;color:#555;line-height:1.6'>外包开发项目的人工智能预测。签字前先了解一下。</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function switchTab(id, btn) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            btn.classList.add('active');
+            if(id === 'tab3') { 
+                setTimeout(() => { 
+                    barChart.resize(); 
+                    lineChart.resize(); 
+                }, 100); 
+            }
+        }
+        
+        var barChart = echarts.init(document.getElementById('chart-bar'));
+        barChart.setOption({ 
+            title: { text: '今日工具赛道', left: 'center', textStyle:{fontSize:14} }, 
+            tooltip: { trigger: 'axis' }, 
+            grid: { bottom: '10%', top:'20%', containLabel: true }, 
+            xAxis: { type: 'category', data: ["\ud83d\ude80 \u6a21\u578b/\u5f00\u53d1\u7a7a\u95f4", "\ud83e\udde0 \u901a\u7528AI\u5e94\u7528", "\ud83d\udc68\u200d\ud83d\udcbb \u7f16\u7a0b/\u5f00\u53d1", "\ud83d\udee0\ufe0f \u7efc\u5408\u5de5\u5177\u7bb1", "\ud83e\udd16 \u667a\u80fd\u4f53/RPA", "\ud83c\udfa8 AI\u7ed8\u753b/\u8bbe\u8ba1", "\ud83d\udce3 \u8425\u9500/SEO", "\ud83d\udcdd \u5199\u4f5c/\u5185\u5bb9", "\ud83d\udcac \u804a\u5929/\u4f34\u4fa3", "\ud83c\udfa5 \u89c6\u9891\u751f\u6210/\u5904\u7406", "\ud83d\udde3\ufe0f \u8bed\u97f3/\u6570\u5b57\u4eba", "\ud83d\udd0d \u641c\u7d22/\u7814\u7a76", "\ud83d\udcc5 \u6548\u7387/\u751f\u4ea7\u529b", "\ud83c\udf93 \u6559\u80b2/\u8bed\u8a00", "\ud83d\udee1\ufe0f \u5b89\u5168/\u68c0\u6d4b"], axisLabel: { rotate: 30, interval: 0, fontSize:10 } }, 
+            yAxis: { type: 'value' }, 
+            series: [{ type: 'bar', data: [1224, 473, 440, 275, 137, 112, 99, 84, 79, 74, 74, 64, 57, 55, 45], itemStyle: { color: '#3498db', borderRadius:[4,4,0,0] } }] 
+        });
+        
+        var lineChart = echarts.init(document.getElementById('chart-line'));
+        lineChart.setOption({ 
+            title: { text: '发布趋势', left: 'center', textStyle:{fontSize:14} }, 
+            tooltip: { trigger: 'axis' }, 
+            grid: { bottom: '10%', top:'20%', containLabel: true }, 
+            xAxis: { type: 'category', data: ["03-13", "03-14", "03-15", "03-16", "03-17", "03-18", "03-19", "03-20", "03-21", "03-22", "03-23", "03-24", "03-25", "03-26"], axisLabel:{fontSize:10} }, 
+            yAxis: { type: 'value' }, 
+            series: [{ type: 'line', data: [60, 43, 43, 53, 60, 54, 61, 77, 54, 62, 72, 82, 82, 1], smooth: true, areaStyle: {opacity:0.2}, itemStyle: { color: '#2ecc71' } }] 
+        });
+        
+        window.onresize = function() { barChart.resize(); lineChart.resize(); };
+    </script>
+</body>
+</html>
