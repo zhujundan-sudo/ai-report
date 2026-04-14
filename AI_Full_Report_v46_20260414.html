@@ -1,0 +1,255 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AI 行业全景日报 - 2026-04-14</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        :root { --primary: #1a1a1a; --accent: #0066cc; --bg: #f8f9fa; --card-bg: #ffffff; --text: #333333; --text-light: #666666; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: var(--bg); color: var(--text); margin: 0; padding-bottom: 60px; 
+            line-height: 1.75; -webkit-font-smoothing: antialiased; font-size: 16px;
+        }
+        
+        .nav-bar { 
+            background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px);
+            position: sticky; top: 0; z-index: 1000; 
+            display: flex; justify-content: center; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            overflow-x: auto; white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
+        }
+        .nav-item { 
+            padding: 16px 24px; cursor: pointer; color: var(--text-light); 
+            font-weight: 600; font-size: 15px; border-bottom: 2px solid transparent; 
+            transition: all 0.3s ease;
+        }
+        .nav-item.active { color: var(--accent); border-bottom-color: var(--accent); }
+        
+        .container { max-width: 960px; margin: 20px auto; padding: 0 16px; }
+        
+        .header { 
+            text-align: center; margin: 30px 0 40px; padding: 40px 20px; 
+            background: linear-gradient(135deg, #0052cc 0%, #003366 100%); 
+            color: white; border-radius: 16px; 
+            box-shadow: 0 10px 20px rgba(0,82,204,0.15);
+        }
+        .header h1 { margin: 0 0 10px; font-size: 26px; }
+        .header p { opacity: 0.8; font-size: 14px; margin: 0; font-family: monospace; }
+        
+        .tab-content { display: none; animation: fadeIn 0.4s ease-out; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .card { 
+            background: var(--card-bg); border-radius: 16px; padding: 24px; 
+            margin-bottom: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); 
+            border: 1px solid rgba(0,0,0,0.03);
+        }
+        .card h3 { 
+            margin-top: 0; color: var(--primary); font-size: 20px; 
+            margin-bottom: 20px; font-weight: 700; position: relative; padding-left: 14px;
+        }
+        .card h3::before {
+            content: ''; position: absolute; left: 0; top: 4px; bottom: 4px;
+            width: 4px; background: var(--accent); border-radius: 2px;
+        }
+        
+        ul { padding-left: 0; list-style-position: inside; }
+        li { margin-bottom: 12px; color: #444; position: relative; padding-left: 20px; list-style: none;}
+        li::before {
+            content: "•"; color: var(--accent); font-weight: bold; 
+            position: absolute; left: 0; top: 0;
+        }
+        strong { color: #000; font-weight: 700; background: rgba(0,102,204,0.05); padding: 0 4px; border-radius: 4px; }
+        
+        .news-ref { 
+            font-size: 12px; color: var(--accent); text-decoration: none; 
+            margin-left: 4px; background: rgba(0,102,204,0.08); 
+            padding: 2px 6px; border-radius: 4px; vertical-align: middle;
+        }
+        .source-btn { 
+            display: inline-block; padding: 4px 8px; border-radius: 6px; 
+            text-decoration: none; font-size: 11px; margin-right: 4px; 
+            color: white; font-weight: 600; white-space: nowrap;
+        }
+        .src-ph { background-color: #da552f; } .src-tf { background-color: #27ae60; } 
+        .src-ta { background-color: #8e44ad; } .src-hf { background-color: #f39c12; }
+        
+        .table-wrapper { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 10px; }
+        .tools-table { width: 100%; min-width: 600px; border-collapse: separate; border-spacing: 0; }
+        .tools-table th { 
+            background: #f4f6f8; padding: 14px 10px; text-align: left; 
+            color: #666; font-size: 13px; border-bottom: 2px solid #eee;
+        }
+        .tools-table td { padding: 16px 10px; border-bottom: 1px solid #f0f0f0; vertical-align: top; }
+        
+        .tool-name-link { font-weight: 700; color: #333; text-decoration: none; font-size: 15px; }
+        .tool-hot { color: #ff3b30; font-weight: 700; font-family: monospace; }
+        .tool-cat { background: #e3f2fd; color: #0277bd; padding: 4px 8px; border-radius: 6px; font-size: 12px; display: inline-block; }
+        
+        .analysis-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+        .chart-row { display: flex; gap: 20px; margin-bottom: 20px; }
+        .chart-box { flex: 1; background: white; padding: 15px; border-radius: 12px; height: 350px; min-height: 350px; border: 1px solid #eee; }
+        
+        /* 📱 移动端适配核心代码 📱 */
+        @media (max-width: 768px) {
+            body { font-size: 15px; }
+            .container { padding: 0 12px; margin: 15px auto; }
+            .header { padding: 30px 15px; margin-bottom: 25px; }
+            .header h1 { font-size: 22px; }
+            .nav-item { padding: 14px 16px; font-size: 14px; }
+            .card { padding: 20px 16px; border-radius: 12px; }
+            
+            /* 强制单列布局 */
+            .analysis-grid { grid-template-columns: 1fr; gap: 24px; }
+            .chart-row { flex-direction: column; gap: 20px; }
+            .chart-box { height: 300px; min-height: 300px; }
+            
+            /* --- 话题聚合表格：移动端卡片化重构 --- */
+            /* 1. 强制表格块状显示，允许宽度自适应 */
+            .topic-table { display: block; width: 100%; min-width: 100% !important; }
+            /* 2. 隐藏表头 */
+            .topic-table thead { display: none; }
+            .topic-table tbody { display: block; }
+            /* 3. 每一行变成一个独立的卡片 */
+            .topic-table tr { 
+                display: flex; flex-direction: column; 
+                background: #fff; 
+                border: 1px solid #e1e4e8; border-radius: 12px; 
+                margin-bottom: 20px; padding: 16px;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+            }
+            /* 4. 单元格强制换行 */
+            .topic-table td { 
+                display: block; width: 100% !important; 
+                padding: 0 !important; border: none !important; 
+            }
+            /* 5. 话题标题样式优化 */
+            .topic-table td:first-child {
+                font-size: 18px; line-height: 1.4;
+                margin-bottom: 12px; padding-bottom: 12px !important;
+                border-bottom: 1px solid #f0f2f5 !important;
+                background: transparent;
+            }
+            /* 6. 话题内容列表样式优化 */
+            .topic-table td:last-child ul { margin: 0; padding-left: 0; }
+            .topic-table td:last-child li { 
+                background: #f9fafb; padding: 10px 12px; 
+                border-radius: 8px; margin-bottom: 8px;
+                padding-left: 12px; 
+            }
+            .topic-table td:last-child li::before { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚀 AI 行业全景日报</h1>
+        <p>2026-04-14 | 移动端极致适配版</p>
+    </div>
+    
+    <div class="nav-bar">
+        <div class="nav-item active" onclick="switchTab('tab1', this)">🔍 交叉分析</div>
+        <div class="nav-item" onclick="switchTab('tab2', this)">📰 话题聚合</div>
+        <div class="nav-item" onclick="switchTab('tab3', this)">🛠️ 选品库</div>
+    </div>
+    
+    <div class="container">
+        <div id="tab1" class="tab-content active">
+            <div class="card">
+                <h3>📈 深度洞察：技术 x 产品</h3>
+                <div style="font-size: 1.05em; color: #2c3e50;"><p>2026年第二季度的AI行业正经历从“对话式AI”向“行动式AI（Actionable AI）”的范式转移。新闻中高频出现的“龙虾（OpenClaw）”与“爱马仕（Hermes）”<a href="https://www.qbitai.com/2026/04/400522.html" target="_blank" class="news-ref">[量子位]</a>,<a href="https://www.jiqizhixin.com/articles/2026-04-13-10" target="_blank" class="news-ref">[机器之心]</a>不仅是社交媒体的热梗，更代表了GUI（图形用户界面）感知智能体的技术成熟。这种转变的核心在于VLA（视觉-语言-动作）模型的突破，如明略科技开源的 <strong>Mano-P 1.0</strong><a href="https://www.producthunt.com/products/audyr-understand-your-customers" target="_blank" class="news-ref" style="background:rgba(255,159,67,0.15);color:#e67e22">🔗</a>，它让AI不再局限于文本输出，而是具备了在各种操作系统和网页上进行“视觉点击”的能力。技术层面上，这种进步得益于底层潜空间综述<a href="https://www.jiqizhixin.com/articles/2026-04-13-8" target="_blank" class="news-ref">[机器之心]</a>中提到的表征优化，以及类似 <strong>LRT</strong><a href="https://www.jiqizhixin.com/articles/2026-04-13-6" target="_blank" class="news-ref">[机器之心]</a> 的隐式思维链压缩，极大缩短了Agent在执行复杂工作流时的前向推理延迟。从工具端看，<strong>ClawMetry</strong><a href="https://www.producthunt.com/products/clawmetry" target="_blank" class="news-ref" style="background:rgba(255,159,67,0.15);color:#e67e22">🔗</a> 和 <strong>ArmorClaw</strong><a href="https://www.producthunt.com/products/armorclaw" target="_blank" class="news-ref" style="background:rgba(255,159,67,0.15);color:#e67e22">🔗</a> 等产品的出现，标志着开发者正致力于解决Agent运行的“不可能三角”——平衡性能、安全与隐私。未来，这种基于GUI感知的控制力将深度融合入硬件，正如荣耀推出的“养虾本” <strong>YOYO Claw</strong><a href="https://www.jiqizhixin.com/articles/2026-04-13-12" target="_blank" class="news-ref">[机器之心]</a>，预示着PC产业将迎来Agent原生的硬件革命。</p></div>
+                <div style="margin-top: 25px; padding-top: 20px; border-top: 1px dashed #eee;">
+                    <h4 style="margin: 0 0 15px; color: var(--accent);">🗝️ 关键转化趋势</h4>
+                    <ul><li><strong>GUI Agent 原生化</strong>：以“龙虾”为代表的Agent正在从浏览器插件形态向系统级API演进，<strong>ClawMetry</strong><a href="https://www.producthunt.com/products/clawmetry" target="_blank" class="news-ref" style="background:rgba(255,159,67,0.15);color:#e67e22">🔗</a> 和 <strong>ZooClaw</strong><a href="https://www.producthunt.com/products/zooclaw" target="_blank" class="news-ref" style="background:rgba(255,159,67,0.15);color:#e67e22">🔗</a> 正在重塑人机交互界面。</li><li><strong>潜空间推理普及</strong>：大模型设计正由显式Chain-of-Thought向隐式表征压缩进化，<strong>Trinity-Large-Thinking</strong><a href="https://www.producthunt.com/products/trinity-large-thinking-by-arcee-ai" target="_blank" class="news-ref" style="background:rgba(255,159,67,0.15);color:#e67e22">🔗</a> 等工具展示了更高效的逻辑执行能力。</li><li><strong>具身智能全感知数采</strong>：从单模态视觉向六维力、触觉进发，<strong>Wan2.2</strong><a href="https://huggingface.co/spaces/r3gm/wan2-2-fp8da-aoti-preview" target="_blank" class="news-ref" style="background:rgba(255,159,67,0.15);color:#e67e22">🔗</a> 与 <strong>Hunyuan3D-2.1</strong><a href="https://huggingface.co/spaces/Jbowyer/Hunyuan3D-2.1" target="_blank" class="news-ref" style="background:rgba(255,159,67,0.15);color:#e67e22">🔗</a> 等模型正加速物理世界理解的闭环。</li><li><strong>算力民主化与端侧加速</strong>：随着 <strong>Gemma 4 WebGPU</strong><a href="https://huggingface.co/spaces/webml-community/Gemma-4-WebGPU" target="_blank" class="news-ref" style="background:rgba(255,159,67,0.15);color:#e67e22">🔗</a> 的推出，在浏览器端运行百亿级参数模型已成现实，降低了AI应用的落地门槛。</li></ul>
+                </div>
+            </div>
+        </div>
+        
+        <div id="tab2" class="tab-content">
+            <div class="card">
+                <h3>🔥 全网话题深度聚合</h3>
+                <table class="tools-table topic-table">
+                    <thead><tr><th style="width:25%">热门话题</th><th>核心动态梳理</th></tr></thead>
+                    <tbody><tr><td style='font-weight:700;color:#0052cc;vertical-align:top'>#龙虾与Agent行动力革命</td><td><ul><li>硅谷与国内科技圈掀起Agent热潮，开源“爱马仕”模型星数激增，标志着智能体从Demo迈向实用业务。 <a href="https://www.qbitai.com/2026/04/400522.html" target="_blank" class="news-ref">[量子位]</a>,<a href="https://www.jiqizhixin.com/articles/2026-04-13-14" target="_blank" class="news-ref">[机器之心]</a></li><li>明略科技开源GUI-VLA模型Mano-P 1.0，实现13个榜单SOTA，支持Apple M4芯片本地运行。 <a href="https://www.jiqizhixin.com/articles/2026-04-13-10" target="_blank" class="news-ref">[机器之心]</a>,<a href="https://www.jiqizhixin.com/articles/2026-04-13-11" target="_blank" class="news-ref">[机器之心]</a></li><li>荣耀发布自研龙虾AI智能体YOYO Claw，定义“养虾本”新品类，加速端侧Agent商业化。 <a href="https://www.jiqizhixin.com/articles/2026-04-13-12" target="_blank" class="news-ref">[机器之心]</a></li><li>微软借鉴OpenClaw思路，正为企业客户开发具备更高安全性的新版Copilot智能体。 <a href="https://techcrunch.com/2026/04/13/microsoft-is-working-on-yet-another-openclaw-like-agent/" target="_blank" class="news-ref">[TechCrunch]</a>,<a href="https://www.theinformation.com/articles/microsoft-plots-new-copilot-features-inspired-openclaw" target="_blank" class="news-ref">[Theinformation]</a></li></ul></td></tr><tr><td style='font-weight:700;color:#0052cc;vertical-align:top'>#具身智能与物理世界建模</td><td><ul><li>智元机器人联合北大推出SpikePingpong算法，通过全自主乒乓对打展示中国具身智能实操高度。 <a href="https://www.jiqizhixin.com/articles/2026-04-13-5" target="_blank" class="news-ref">[机器之心]</a></li><li>CVPR 2026 WorldArena挑战赛启动，高德开源世界模型基线，试图解决AI视频生成中的物理逻辑穿模问题。 <a href="https://www.jiqizhixin.com/articles/2026-04-13-2" target="_blank" class="news-ref">[机器之心]</a></li><li>具身智能领域出现全感知数采，引入六维力，助力VLA模型进化出精准的触觉反馈。 <a href="https://www.jiqizhixin.com/articles/2026-04-13-9" target="_blank" class="news-ref">[机器之心]</a></li></ul></td></tr><tr><td style='font-weight:700;color:#0052cc;vertical-align:top'>#底层架构与模型演进</td><td><ul><li>哈工大提出隐式思考模型LRT，将冗长的思维链压缩为向量，实现更快速的逻辑推理。 <a href="https://www.jiqizhixin.com/articles/2026-04-13-6" target="_blank" class="news-ref">[机器之心]</a></li><li>清华、复旦等联合发布大模型潜空间综述，探讨潜空间范式如何重塑LLM和VLM的底层设计。 <a href="https://www.jiqizhixin.com/articles/2026-04-13-8" target="_blank" class="news-ref">[机器之心]</a></li><li>Claude最强“神话”模型被曝使用字节Seed技术概念，大模型版权与技术溯源争议再起。 <a href="https://www.qbitai.com/2026/04/400500.html" target="_blank" class="news-ref">[量子位]</a></li></ul></td></tr><tr><td style='font-weight:700;color:#0052cc;vertical-align:top'>#行业格局与商业流动</td><td><ul><li>Meta从OpenAI挖走三位资深高管，负责Stargate云及数据中心计划，算力军备竞赛升级。 <a href="https://www.theinformation.com/briefings/openai-stargate-execs-join-metas-new-compute-unit" target="_blank" class="news-ref">[Theinformation]</a>,<a href="https://www.qbitai.com/2026/04/401002.html" target="_blank" class="news-ref">[量子位]</a></li><li>Uber与Nuro在旧金山启动高级无人驾驶出租车测试，智能座舱供应商冲刺港股IPO。 <a href="https://techcrunch.com/2026/04/13/uber-nuro-san-francisco-testing-premium-robotaxi-service/" target="_blank" class="news-ref">[TechCrunch]</a>,<a href="https://www.qbitai.com/2026/04/400567.html" target="_blank" class="news-ref">[量子位]</a></li><li>Vercel CEO表示AI智能体正驱动公司营收激增，已做好IPO上市准备。 <a href="https://techcrunch.com/2026/04/13/vercel-ceo-guillermo-rauch-signals-ipo-readiness-as-ai-agents-fuel-revenue-surge/" target="_blank" class="news-ref">[TechCrunch]</a></li></ul></td></tr></tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div id="tab3" class="tab-content">
+            <div class="chart-row">
+                <div id="chart-bar" class="chart-box"></div>
+                <div id="chart-line" class="chart-box"></div>
+            </div>
+            
+            <div class="card">
+                <h3>👥 用户画像与机会点</h3>
+                <div class="analysis-grid">
+                    <div><h4 style="color:#2980b9; margin-bottom:10px;">📊 市场风向</h4><ul><li>市场正从通用的对话机器人转向垂直场景的感知模型，例如 <strong>LFM2.5-VL-450M</strong><a href="https://huggingface.co/spaces/LiquidAI/LFM2.5-VL-450M-WebGPU" target="_blank" class="news-ref" style="background:rgba(255,159,67,0.15);color:#e67e22">🔗</a> 通过WebGPU实现了极低延迟的实时视频字幕。</li><li>模型量化与私有化部署成为开发者首选，<strong>GGUF My Repo</strong><a href="https://huggingface.co/spaces/ggml-org/gguf-my-repo" target="_blank" class="news-ref" style="background:rgba(255,159,67,0.15);color:#e67e22">🔗</a> 等工具极大简化了模型分发流程。</li></ul></div>
+                    <div><h4 style="color:#c0392b; margin-bottom:10px;">😡 用户痛点</h4><ul><li><strong>幻觉与安全性</strong>：Agent在执行GUI操作时仍存在误点风险，<strong>ArmorClaw</strong><a href="https://www.producthunt.com/products/armorclaw" target="_blank" class="news-ref" style="background:rgba(255,159,67,0.15);color:#e67e22">🔗</a> 和 <strong>OpenBox</strong><a href="https://www.producthunt.com/products/openbox" target="_blank" class="news-ref" style="background:rgba(255,159,67,0.15);color:#e67e22">🔗</a> 致力于提供更强的执行监控和权限防护。</li><li><strong>多模态对齐难度</strong>：在3D生成中保持一致性是痛点，<strong>TRELLIS.2</strong><a href="https://huggingface.co/spaces/microsoft/TRELLIS.2" target="_blank" class="news-ref" style="background:rgba(255,159,67,0.15);color:#e67e22">🔗</a> 尝试解决从单图到高保真3D的资产转化瓶颈。</li></ul></div>
+                    <div><h4 style="color:#27ae60; margin-bottom:10px;">😍 产品爽点</h4><ul><li><strong>极简语音交互</strong>：<strong>OmniVoice</strong><a href="https://huggingface.co/spaces/k2-fsa/OmniVoice" target="_blank" class="news-ref" style="background:rgba(255,159,67,0.15);color:#e67e22">🔗</a> 支持600多语言的高质量克隆，令AI数字人的听感与情感表达达到了真人水准。</li><li><strong>瞬时视频生成</strong>：<strong>Wan2.2 14B Fast</strong><a href="https://huggingface.co/spaces/zerogpu-aoti/wan2-2-fp8da-aoti-faster" target="_blank" class="news-ref" style="background:rgba(255,159,67,0.15);color:#e67e22">🔗</a> 展现了令人惊叹的视频生成速度，将原本分钟级的任务缩减至秒级。</li></ul></div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>🧰 精选新工具 (Top 30)</h3>
+                <div class="table-wrapper">
+                    <table class="tools-table">
+                        <thead>
+                            <tr>
+                                <th style="min-width:120px">工具名称</th>
+                                <th style="min-width:80px">来源</th>
+                                <th style="min-width:60px">热度</th>
+                                <th style="min-width:100px">类型</th>
+                                <th style="min-width:200px">简介</th>
+                            </tr>
+                        </thead>
+                        <tbody><tr><td><a href='https://www.producthunt.com/products/wisprflow' target='_blank' class='tool-name-link'>Wispr Flow: Dictation That Works Everywhere</a></td><td><span class='source-btn src-ph'>ProductHunt</span></td><td><span class='tool-hot'>2,133</span></td><td><span class='tool-cat'>🧠 通用AI应用</span></td><td style='font-size:14px;color:#555;line-height:1.6'>在</td></tr><tr><td><a href='https://www.producthunt.com/products/wisprflow' target='_blank' class='tool-name-link'>Wispr Flow: Dictation That Works Everywhere</a></td><td><span class='source-btn src-ph'>ProductHunt</span></td><td><span class='tool-hot'>2,133</span></td><td><span class='tool-cat'>🧠 通用AI应用</span></td><td style='font-size:14px;color:#555;line-height:1.6'>在</td></tr><tr><td><a href='https://www.producthunt.com/products/wisprflow' target='_blank' class='tool-name-link'>Wispr Flow: Dictation That Works Everywhere</a></td><td><span class='source-btn src-ph'>ProductHunt</span></td><td><span class='tool-hot'>2,133</span></td><td><span class='tool-cat'>🧠 通用AI应用</span></td><td style='font-size:14px;color:#555;line-height:1.6'>在</td></tr><tr><td><a href='https://www.producthunt.com/products/wisprflow' target='_blank' class='tool-name-link'>Wispr Flow: Dictation That Works Everywhere</a></td><td><span class='source-btn src-ph'>ProductHunt</span></td><td><span class='tool-hot'>2,133</span></td><td><span class='tool-cat'>🧠 通用AI应用</span></td><td style='font-size:14px;color:#555;line-height:1.6'>在</td></tr><tr><td><a href='https://www.producthunt.com/products/wisprflow' target='_blank' class='tool-name-link'>Wispr Flow: Dictation That Works Everywhere</a></td><td><span class='source-btn src-ph'>ProductHunt</span></td><td><span class='tool-hot'>2,133</span></td><td><span class='tool-cat'>🧠 通用AI应用</span></td><td style='font-size:14px;color:#555;line-height:1.6'>在</td></tr><tr><td><a href='https://theresanaiforthat.com/ai/kirkify-co/' target='_blank' class='tool-name-link'>Kirkify AI Images Generator</a></td><td><span class='source-btn src-ta'>TAAFT</span></td><td><span class='tool-hot'>353,245</span></td><td><span class='tool-cat'>🎥 视频生成/处理</span></td><td style='font-size:14px;color:#555;line-height:1.6'>创建超现实的查理·柯克换脸表情包。</td></tr><tr><td><a href='https://theresanaiforthat.com/ai/tendem/' target='_blank' class='tool-name-link'>Tendem</a></td><td><span class='source-btn src-ta'>TAAFT</span></td><td><span class='tool-hot'>245,459</span></td><td><span class='tool-cat'>🤖 智能体/RPA</span></td><td style='font-size:14px;color:#555;line-height:1.6'>AI + 人工代理完成任务</td></tr><tr><td><a href='https://theresanaiforthat.com/ai/intuo/' target='_blank' class='tool-name-link'>Intuo - AI Sales Intelligence Brief</a></td><td><span class='source-btn src-ta'>TAAFT</span></td><td><span class='tool-hot'>210,186</span></td><td><span class='tool-cat'>🧠 通用AI应用</span></td><td style='font-size:14px;color:#555;line-height:1.6'>由人工智能驱动的每日简报告诉您什么重要以及为什么重要</td></tr><tr><td><a href='https://theresanaiforthat.comhttps://agendahero.com/magic?ref=taaft&utm_source=taaft&utm_medium=referral' target='_blank' class='tool-name-link'>Agenda Hero</a></td><td><span class='source-btn src-ta'>TAAFT</span></td><td><span class='tool-hot'>184,631</span></td><td><span class='tool-cat'>📅 效率/生产力</span></td><td style='font-size:14px;color:#555;line-height:1.6'>将任何事情变成日历事件</td></tr><tr><td><a href='https://theresanaiforthat.com/ai/eleven-labs/' target='_blank' class='tool-name-link'>ElevenLabs</a></td><td><span class='source-btn src-ta'>TAAFT</span></td><td><span class='tool-hot'>153,704</span></td><td><span class='tool-cat'>🧠 通用AI应用</span></td><td style='font-size:14px;color:#555;line-height:1.6'>创建栩栩如生的人工智能声音，讲述引人入胜的故事。</td></tr><tr><td><a href='https://huggingface.co/spaces/hysts/ControlNet' target='_blank' class='tool-name-link'>ControlNet</a></td><td><span class='source-btn src-hf'>HuggingFace</span></td><td><span class='tool-hot'>998</span></td><td><span class='tool-cat'>🚀 模型/开发空间</span></td><td style='font-size:14px;color:#555;line-height:1.6'>从草图、边缘、姿势和深度图生成图像</td></tr><tr><td><a href='https://huggingface.co/spaces/fancyfeast/joy-caption-beta-one' target='_blank' class='tool-name-link'>Joy Caption Beta One</a></td><td><span class='source-btn src-hf'>HuggingFace</span></td><td><span class='tool-hot'>993</span></td><td><span class='tool-cat'>🚀 模型/开发空间</span></td><td style='font-size:14px;color:#555;line-height:1.6'>为任何图像生成详细的标题</td></tr><tr><td><a href='https://huggingface.co/spaces/gokaygokay/Tile-Upscaler' target='_blank' class='tool-name-link'>Tile Upscaler</a></td><td><span class='source-btn src-hf'>HuggingFace</span></td><td><span class='tool-hot'>986</span></td><td><span class='tool-cat'>🚀 模型/开发空间</span></td><td style='font-size:14px;color:#555;line-height:1.6'>利用 HDR 和 AI 细节增强和提升图像</td></tr><tr><td><a href='https://huggingface.co/spaces/TTS-AGI/TTS-Arena-V2' target='_blank' class='tool-name-link'>TTS Arena V2</a></td><td><span class='source-btn src-hf'>HuggingFace</span></td><td><span class='tool-hot'>947</span></td><td><span class='tool-cat'>🚀 模型/开发空间</span></td><td style='font-size:14px;color:#555;line-height:1.6'>投票选出最新的 TTS 模型！</td></tr><tr><td><a href='https://huggingface.co/spaces/hkchengrex/MMAudio' target='_blank' class='tool-name-link'>MMAudio — generating synchronized audio from video/text</a></td><td><span class='source-btn src-hf'>HuggingFace</span></td><td><span class='tool-hot'>939</span></td><td><span class='tool-cat'>🚀 模型/开发空间</span></td><td style='font-size:14px;color:#555;line-height:1.6'>从视频或文本提示生成同步音频</td></tr><tr><td><a href='https://www.toolify.ai/tool/chatpdf' target='_blank' class='tool-name-link'>ChatPDF</a></td><td><span class='source-btn src-tf'>Toolify</span></td><td><span class='tool-hot'>-</span></td><td><span class='tool-cat'>🧠 通用AI应用</span></td><td style='font-size:14px;color:#555;line-height:1.6'>ChatPDF 使用 AI 与 PDF 文档交互并提取信息。</td></tr><tr><td><a href='https://www.toolify.ai/tool/ideaape' target='_blank' class='tool-name-link'>IdeaApe</a></td><td><span class='source-btn src-tf'>Toolify</span></td><td><span class='tool-hot'>-</span></td><td><span class='tool-cat'>👨‍💻 编程/开发</span></td><td style='font-size:14px;color:#555;line-height:1.6'>人工智能市场研究工具使用 Reddit 数据进行品牌战略和验证。</td></tr><tr><td><a href='https://www.toolify.ai/tool/openai-sora' target='_blank' class='tool-name-link'>Sora</a></td><td><span class='source-btn src-tf'>Toolify</span></td><td><span class='tool-hot'>-</span></td><td><span class='tool-cat'>🎥 视频生成/处理</span></td><td style='font-size:14px;color:#555;line-height:1.6'>AI 模型从文本、图像或现有视频创建逼真的视频。</td></tr><tr><td><a href='https://www.toolify.ai/tool/perplexity-ai' target='_blank' class='tool-name-link'>Perplexity AI</a></td><td><span class='source-btn src-tf'>Toolify</span></td><td><span class='tool-hot'>-</span></td><td><span class='tool-cat'>🔍 搜索/研究</span></td><td style='font-size:14px;color:#555;line-height:1.6'>下载 Comet 并免费获取 Perplexity Pro。</td></tr><tr><td><a href='https://www.toolify.ai/tool/leonardo-ai' target='_blank' class='tool-name-link'>Leonardo.Ai</a></td><td><span class='source-btn src-tf'>Toolify</span></td><td><span class='tool-hot'>-</span></td><td><span class='tool-cat'>🧠 通用AI应用</span></td><td style='font-size:14px;color:#555;line-height:1.6'>人工智能平台，用于以速度和风格一致性生成生产质量的创意资产。</td></tr><tr><td><a href='https://theresanaiforthat.com/ai/rabbitholes-ai/' target='_blank' class='tool-name-link'>Rabbitholes AI</a></td><td><span class='source-btn src-ta'>TAAFT</span></td><td><span class='tool-hot'>113,328</span></td><td><span class='tool-cat'>💬 聊天/伴侣</span></td><td style='font-size:14px;color:#555;line-height:1.6'>在无限画布上与 AI 模型聊天</td></tr><tr><td><a href='https://theresanaiforthat.com/ai/disclaimr/' target='_blank' class='tool-name-link'>Disclaimr AI</a></td><td><span class='source-btn src-ta'>TAAFT</span></td><td><span class='tool-hot'>107,946</span></td><td><span class='tool-cat'>🧠 通用AI应用</span></td><td style='font-size:14px;color:#555;line-height:1.6'>外包开发项目的人工智能预测。签字前先了解一下。</td></tr><tr><td><a href='https://theresanaiforthat.com/ai/thumbnailcreator/' target='_blank' class='tool-name-link'>ThumbnailCreator.com</a></td><td><span class='source-btn src-ta'>TAAFT</span></td><td><span class='tool-hot'>102,472</span></td><td><span class='tool-cat'>🛠️ 综合工具箱</span></td><td style='font-size:14px;color:#555;line-height:1.6'>在几秒钟内创建引人注目的 YouTube 缩略图。</td></tr><tr><td><a href='https://theresanaiforthat.com/ai/mocha/' target='_blank' class='tool-name-link'>Mocha</a></td><td><span class='source-btn src-ta'>TAAFT</span></td><td><span class='tool-hot'>98,605</span></td><td><span class='tool-cat'>👨‍💻 编程/开发</span></td><td style='font-size:14px;color:#555;line-height:1.6'>立即将应用创意变为现实。</td></tr><tr><td><a href='https://theresanaiforthat.com/ai/the-mumble-app/' target='_blank' class='tool-name-link'>Mumble Note: AI Voice Notetaker</a></td><td><span class='source-btn src-ta'>TAAFT</span></td><td><span class='tool-hot'>95,477</span></td><td><span class='tool-cat'>📅 效率/生产力</span></td><td style='font-size:14px;color:#555;line-height:1.6'>通过 AI 将您的声音转化为结构化笔记和行动项目</td></tr><tr><td><a href='https://theresanaiforthat.com/ai/runwayml/' target='_blank' class='tool-name-link'>Runway</a></td><td><span class='source-btn src-ta'>TAAFT</span></td><td><span class='tool-hot'>89,553</span></td><td><span class='tool-cat'>🎥 视频生成/处理</span></td><td style='font-size:14px;color:#555;line-height:1.6'>用于内容生成和编辑的人工智能创意工具</td></tr><tr><td><a href='https://theresanaiforthat.com/ai/kling/' target='_blank' class='tool-name-link'>Kling</a></td><td><span class='source-btn src-ta'>TAAFT</span></td><td><span class='tool-hot'>84,228</span></td><td><span class='tool-cat'>🎥 视频生成/处理</span></td><td style='font-size:14px;color:#555;line-height:1.6'>使用逼真的运动和真实物理原理从文本创建高保真视频</td></tr><tr><td><a href='https://theresanaiforthat.com/ai/explee/' target='_blank' class='tool-name-link'>Explee</a></td><td><span class='source-btn src-ta'>TAAFT</span></td><td><span class='tool-hot'>80,532</span></td><td><span class='tool-cat'>📣 营销/SEO</span></td><td style='font-size:14px;color:#555;line-height:1.6'>通过完整的网络数据和 AI 丰富，发现 3 倍以上的 B2B 潜在客户</td></tr><tr><td><a href='https://theresanaiforthat.com/ai/scalarx/' target='_blank' class='tool-name-link'>scalerX</a></td><td><span class='source-btn src-ta'>TAAFT</span></td><td><span class='tool-hot'>66,706</span></td><td><span class='tool-cat'>🤖 智能体/RPA</span></td><td style='font-size:14px;color:#555;line-height:1.6'>使用个性化 AI 代理增强您的 Telegram 聊天能力</td></tr><tr><td><a href='https://theresanaiforthat.com/ai/nodu-ai/' target='_blank' class='tool-name-link'>Nodu AI</a></td><td><span class='source-btn src-ta'>TAAFT</span></td><td><span class='tool-hot'>62,179</span></td><td><span class='tool-cat'>👨‍💻 编程/开发</span></td><td style='font-size:14px;color:#555;line-height:1.6'>为您的产品或品牌创建讲故事的视频</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function switchTab(id, btn) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            btn.classList.add('active');
+            if(id === 'tab3') { 
+                setTimeout(() => { 
+                    barChart.resize(); 
+                    lineChart.resize(); 
+                }, 100); 
+            }
+        }
+        
+        var barChart = echarts.init(document.getElementById('chart-bar'));
+        barChart.setOption({ 
+            title: { text: '今日工具赛道', left: 'center', textStyle:{fontSize:14} }, 
+            tooltip: { trigger: 'axis' }, 
+            grid: { bottom: '10%', top:'20%', containLabel: true }, 
+            xAxis: { type: 'category', data: ["\ud83d\ude80 \u6a21\u578b/\u5f00\u53d1\u7a7a\u95f4", "\ud83d\udc68\u200d\ud83d\udcbb \u7f16\u7a0b/\u5f00\u53d1", "\ud83e\udde0 \u901a\u7528AI\u5e94\u7528", "\ud83d\udee0\ufe0f \u7efc\u5408\u5de5\u5177\u7bb1", "\ud83e\udd16 \u667a\u80fd\u4f53/RPA", "\ud83c\udfa8 AI\u7ed8\u753b/\u8bbe\u8ba1", "\ud83d\udce3 \u8425\u9500/SEO", "\ud83d\udcac \u804a\u5929/\u4f34\u4fa3", "\ud83d\udde3\ufe0f \u8bed\u97f3/\u6570\u5b57\u4eba", "\ud83d\udcdd \u5199\u4f5c/\u5185\u5bb9", "\ud83d\udcca \u6570\u636e/\u5546\u4e1a", "\ud83c\udfa5 \u89c6\u9891\u751f\u6210/\u5904\u7406", "\ud83d\udd0d \u641c\u7d22/\u7814\u7a76", "\ud83c\udf93 \u6559\u80b2/\u8bed\u8a00", "\ud83d\udcc5 \u6548\u7387/\u751f\u4ea7\u529b"], axisLabel: { rotate: 30, interval: 0, fontSize:10 } }, 
+            yAxis: { type: 'value' }, 
+            series: [{ type: 'bar', data: [1224, 471, 458, 316, 124, 108, 107, 92, 91, 83, 63, 63, 56, 51, 47], itemStyle: { color: '#3498db', borderRadius:[4,4,0,0] } }] 
+        });
+        
+        var lineChart = echarts.init(document.getElementById('chart-line'));
+        lineChart.setOption({ 
+            title: { text: '发布趋势', left: 'center', textStyle:{fontSize:14} }, 
+            tooltip: { trigger: 'axis' }, 
+            grid: { bottom: '10%', top:'20%', containLabel: true }, 
+            xAxis: { type: 'category', data: ["04-01", "04-02", "04-03", "04-04", "04-05", "04-06", "04-07", "04-08", "04-09", "04-10", "04-11", "04-12", "04-13", "04-14"], axisLabel:{fontSize:10} }, 
+            yAxis: { type: 'value' }, 
+            series: [{ type: 'line', data: [43, 53, 73, 55, 52, 52, 67, 94, 80, 100, 71, 89, 85, 3], smooth: true, areaStyle: {opacity:0.2}, itemStyle: { color: '#2ecc71' } }] 
+        });
+        
+        window.onresize = function() { barChart.resize(); lineChart.resize(); };
+    </script>
+</body>
+</html>
