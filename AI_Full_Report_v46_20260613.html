@@ -1,0 +1,255 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AI 行业全景日报 - 2026-06-13</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        :root { --primary: #1a1a1a; --accent: #0066cc; --bg: #f8f9fa; --card-bg: #ffffff; --text: #333333; --text-light: #666666; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: var(--bg); color: var(--text); margin: 0; padding-bottom: 60px; 
+            line-height: 1.75; -webkit-font-smoothing: antialiased; font-size: 16px;
+        }
+        
+        .nav-bar { 
+            background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px);
+            position: sticky; top: 0; z-index: 1000; 
+            display: flex; justify-content: center; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            overflow-x: auto; white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
+        }
+        .nav-item { 
+            padding: 16px 24px; cursor: pointer; color: var(--text-light); 
+            font-weight: 600; font-size: 15px; border-bottom: 2px solid transparent; 
+            transition: all 0.3s ease;
+        }
+        .nav-item.active { color: var(--accent); border-bottom-color: var(--accent); }
+        
+        .container { max-width: 960px; margin: 20px auto; padding: 0 16px; }
+        
+        .header { 
+            text-align: center; margin: 30px 0 40px; padding: 40px 20px; 
+            background: linear-gradient(135deg, #0052cc 0%, #003366 100%); 
+            color: white; border-radius: 16px; 
+            box-shadow: 0 10px 20px rgba(0,82,204,0.15);
+        }
+        .header h1 { margin: 0 0 10px; font-size: 26px; }
+        .header p { opacity: 0.8; font-size: 14px; margin: 0; font-family: monospace; }
+        
+        .tab-content { display: none; animation: fadeIn 0.4s ease-out; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .card { 
+            background: var(--card-bg); border-radius: 16px; padding: 24px; 
+            margin-bottom: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); 
+            border: 1px solid rgba(0,0,0,0.03);
+        }
+        .card h3 { 
+            margin-top: 0; color: var(--primary); font-size: 20px; 
+            margin-bottom: 20px; font-weight: 700; position: relative; padding-left: 14px;
+        }
+        .card h3::before {
+            content: ''; position: absolute; left: 0; top: 4px; bottom: 4px;
+            width: 4px; background: var(--accent); border-radius: 2px;
+        }
+        
+        ul { padding-left: 0; list-style-position: inside; }
+        li { margin-bottom: 12px; color: #444; position: relative; padding-left: 20px; list-style: none;}
+        li::before {
+            content: "•"; color: var(--accent); font-weight: bold; 
+            position: absolute; left: 0; top: 0;
+        }
+        strong { color: #000; font-weight: 700; background: rgba(0,102,204,0.05); padding: 0 4px; border-radius: 4px; }
+        
+        .news-ref { 
+            font-size: 12px; color: var(--accent); text-decoration: none; 
+            margin-left: 4px; background: rgba(0,102,204,0.08); 
+            padding: 2px 6px; border-radius: 4px; vertical-align: middle;
+        }
+        .source-btn { 
+            display: inline-block; padding: 4px 8px; border-radius: 6px; 
+            text-decoration: none; font-size: 11px; margin-right: 4px; 
+            color: white; font-weight: 600; white-space: nowrap;
+        }
+        .src-ph { background-color: #da552f; } .src-tf { background-color: #27ae60; } 
+        .src-ta { background-color: #8e44ad; } .src-hf { background-color: #f39c12; }
+        
+        .table-wrapper { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 10px; }
+        .tools-table { width: 100%; min-width: 600px; border-collapse: separate; border-spacing: 0; }
+        .tools-table th { 
+            background: #f4f6f8; padding: 14px 10px; text-align: left; 
+            color: #666; font-size: 13px; border-bottom: 2px solid #eee;
+        }
+        .tools-table td { padding: 16px 10px; border-bottom: 1px solid #f0f0f0; vertical-align: top; }
+        
+        .tool-name-link { font-weight: 700; color: #333; text-decoration: none; font-size: 15px; }
+        .tool-hot { color: #ff3b30; font-weight: 700; font-family: monospace; }
+        .tool-cat { background: #e3f2fd; color: #0277bd; padding: 4px 8px; border-radius: 6px; font-size: 12px; display: inline-block; }
+        
+        .analysis-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+        .chart-row { display: flex; gap: 20px; margin-bottom: 20px; }
+        .chart-box { flex: 1; background: white; padding: 15px; border-radius: 12px; height: 350px; min-height: 350px; border: 1px solid #eee; }
+        
+        /* 📱 移动端适配核心代码 📱 */
+        @media (max-width: 768px) {
+            body { font-size: 15px; }
+            .container { padding: 0 12px; margin: 15px auto; }
+            .header { padding: 30px 15px; margin-bottom: 25px; }
+            .header h1 { font-size: 22px; }
+            .nav-item { padding: 14px 16px; font-size: 14px; }
+            .card { padding: 20px 16px; border-radius: 12px; }
+            
+            /* 强制单列布局 */
+            .analysis-grid { grid-template-columns: 1fr; gap: 24px; }
+            .chart-row { flex-direction: column; gap: 20px; }
+            .chart-box { height: 300px; min-height: 300px; }
+            
+            /* --- 话题聚合表格：移动端卡片化重构 --- */
+            /* 1. 强制表格块状显示，允许宽度自适应 */
+            .topic-table { display: block; width: 100%; min-width: 100% !important; }
+            /* 2. 隐藏表头 */
+            .topic-table thead { display: none; }
+            .topic-table tbody { display: block; }
+            /* 3. 每一行变成一个独立的卡片 */
+            .topic-table tr { 
+                display: flex; flex-direction: column; 
+                background: #fff; 
+                border: 1px solid #e1e4e8; border-radius: 12px; 
+                margin-bottom: 20px; padding: 16px;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+            }
+            /* 4. 单元格强制换行 */
+            .topic-table td { 
+                display: block; width: 100% !important; 
+                padding: 0 !important; border: none !important; 
+            }
+            /* 5. 话题标题样式优化 */
+            .topic-table td:first-child {
+                font-size: 18px; line-height: 1.4;
+                margin-bottom: 12px; padding-bottom: 12px !important;
+                border-bottom: 1px solid #f0f2f5 !important;
+                background: transparent;
+            }
+            /* 6. 话题内容列表样式优化 */
+            .topic-table td:last-child ul { margin: 0; padding-left: 0; }
+            .topic-table td:last-child li { 
+                background: #f9fafb; padding: 10px 12px; 
+                border-radius: 8px; margin-bottom: 8px;
+                padding-left: 12px; 
+            }
+            .topic-table td:last-child li::before { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚀 AI 行业全景日报</h1>
+        <p>2026-06-13 | 移动端极致适配版</p>
+    </div>
+    
+    <div class="nav-bar">
+        <div class="nav-item active" onclick="switchTab('tab1', this)">🔍 交叉分析</div>
+        <div class="nav-item" onclick="switchTab('tab2', this)">📰 话题聚合</div>
+        <div class="nav-item" onclick="switchTab('tab3', this)">🛠️ 选品库</div>
+    </div>
+    
+    <div class="container">
+        <div id="tab1" class="tab-content active">
+            <div class="card">
+                <h3>📈 深度洞察：技术 x 产品</h3>
+                <div style="font-size: 1.05em; color: #2c3e50;"><p>在本次发布的新闻与工具生态中，我们看到了一个非常清晰的技术转化路径：AI 正在从早期的虚拟空间交互，加速向“物理世界理解”与“端侧可交付性”转化。新闻中指出，AI的主战场已从单一功能走向多 Agent 协作生态 <a href="https://www.qbitai.com/2026/06/435105.html" target="_blank" class="news-ref">[量子位]</a>，且物理 AI (Physical AI) 和具身智能正在经历快速的 Scaling 时代 <a href="https://www.qbitai.com/2026/06/434761.html" target="_blank" class="news-ref">[量子位]</a>,<a href="https://techcrunch.com/2026/06/11/jeff-bezoss-prometheus-raises-12b-to-build-an-artificial-general-engineer-for-the-physical-world/" target="_blank" class="news-ref">[TechCrunch]</a>。这种变革在工具层面得到了最直接的印证。针对具身智能和物理世界建模的需求，工具库中涌现了大量 3D 生成与重建工具，如 <strong>TRELLIS</strong><a href="https://huggingface.co/spaces/trellis-community/TRELLIS" target="_blank" class="news-ref" style="background:rgba(255,159,67,0.15);color:#e67e22">🔗</a>、<strong>TripoSplat</strong><a href="https://huggingface.co/spaces/VAST-AI/TripoSplat" target="_blank" class="news-ref" style="background:rgba(255,159,67,0.15);color:#e67e22">🔗</a> 以及 <strong>Hunyuan3D-2.0</strong><a href="https://huggingface.co/spaces/tencent/Hunyuan3D-2" target="_blank" class="news-ref" style="background:rgba(255,159,67,0.15);color:#e67e22">🔗</a>，它们将单张图片或文本快速转化为高精度的 3D 资产，这正是自动驾驶和机器人虚拟训练（如新闻中提到的 BEV 具身智能 <a href="https://www.qbitai.com/2026/06/434761.html" target="_blank" class="news-ref">[量子位]</a>）所需的基础数据。此外，智能体在复杂代码与系统生成中的实操潜力（如 <a href="https://www.qbitai.com/2026/06/434774.html" target="_blank" class="news-ref">[量子位]</a> 中 Fable 5 的程序化生成）被转化为可以直接运行的 <strong>Fable 5 Boeing 747</strong><a href="https://huggingface.co/spaces/victor/fable-5-boeing-747" target="_blank" class="news-ref" style="background:rgba(255,159,67,0.15);color:#e67e22">🔗</a> 空间。而针对代码生成的爆发式增长 <a href="https://www.jiqizhixin.com/articles/2026-06-12-3" target="_blank" class="news-ref">[机器之心]</a>，工具端也迅速跟进了诸如 <strong>Her · हेर</strong><a href="https://huggingface.co/spaces/build-small-hackathon/her" target="_blank" class="news-ref" style="background:rgba(255,159,67,0.15);color:#e67e22">🔗</a>（Claude Code 调试助手）和 <strong>My Pi Agent</strong><a href="https://huggingface.co/spaces/AlexWortega/my_pi_agent" target="_blank" class="news-ref" style="background:rgba(255,159,67,0.15);color:#e67e22">🔗</a>（全自动 HTML 生成）等辅助开发工具。最后，底层模型能力的提升使得端侧部署（WebGPU 驱动）成为可能，诸如 <strong>Bonsai Image WebGPU</strong><a href="https://huggingface.co/spaces/webml-community/bonsai-image-webgpu" target="_blank" class="news-ref" style="background:rgba(255,159,67,0.15);color:#e67e22">🔗</a> 和 <strong>Cohere Transcribe WebGPU</strong><a href="https://huggingface.co/spaces/CohereLabs/Cohere-Transcribe-WebGPU" target="_blank" class="news-ref" style="background:rgba(255,159,67,0.15);color:#e67e22">🔗</a> 等工具，将 AI 的“可交付性”从云端下沉到了用户的浏览器中，极大地降低了物理和工程落地的门槛。</p></div>
+                <div style="margin-top: 25px; padding-top: 20px; border-top: 1px dashed #eee;">
+                    <h4 style="margin: 0 0 15px; color: var(--accent);">🗝️ 关键转化趋势</h4>
+                    <ul><li><strong>物理世界的三维数字化</strong>：从单张图像、视频或文本一键生成高保真 3D 资产、高斯泼溅模型（3D Gaussian Splatting）和场景几何重建正成为标配。</li><li><strong>WebGPU 驱动的浏览器端本地推理崛起</strong>：无需依赖昂贵的 GPU 云服务，轻量级 SLM 与图像、语音生成任务正在向浏览器本地和边缘端转移，实现即开即用与完全隐私保护。</li><li><strong>多 Agent 协作与智能体可交付性</strong>：Agent 不再局限于对话框，而是深度切入真实世界的物理设计（如程序化 3D 建模）和软件全生命周期开发调试（如代码自治修复）。</li><li><strong>视频生成走向 14B 时代的高效蒸馏与音画对齐</strong>：以 Wan 2.2 家族为代表的开源大视频模型，其预览、加速及音频视频联动技术正快速普及，极大地压缩了创意生成的生产成本。</li></ul>
+                </div>
+            </div>
+        </div>
+        
+        <div id="tab2" class="tab-content">
+            <div class="card">
+                <h3>🔥 全网话题深度聚合</h3>
+                <table class="tools-table topic-table">
+                    <thead><tr><th style="width:25%">热门话题</th><th>核心动态梳理</th></tr></thead>
+                    <tbody><tr><td style='font-weight:700;color:#0052cc;vertical-align:top'>#SpaceX历史性IPO与万亿资本热潮</td><td><ul><li>SpaceX 官宣 IPO 准备就绪，募资 750 亿美元，估值达 1.77 万亿美元，散户资金注入超 700 亿美元，并诞生了全球首位万亿富翁马斯克 <a href="https://www.qbitai.com/2026/06/434733.html" target="_blank" class="news-ref">[量子位]</a>,<a href="https://techcrunch.com/2026/06/12/spacex-ipo-closes-up-19-and-delivers-the-worlds-first-trillionaire/" target="_blank" class="news-ref">[TechCrunch]</a>,<a href="https://techcrunch.com/2026/06/12/elon-musk-becomes-the-worlds-first-trillionaire-after-spacexs-historic-ipo/" target="_blank" class="news-ref">[TechCrunch]</a>,<a href="https://www.jiqizhixin.com/articles/2026-06-12-4" target="_blank" class="news-ref">[机器之心]</a>。</li><li>美股资本市场迎来‘AI与太空股热潮’，Robinhood 因 SpaceX 股票上市遭遇创纪录流量冲击而出现断续故障 <a href="https://techcrunch.com/2026/06/12/robinhood-sees-record-breaking-traffic-after-spacex-stock-debuts/" target="_blank" class="news-ref">[TechCrunch]</a>,<a href="https://techcrunch.com/video/spacex-anthropic-and-openais-hot-ipo-summer/" target="_blank" class="news-ref">[TechCrunch]</a>。</li><li>SpaceX 总裁肖特威尔暗示 SpaceX 与特斯拉未来存在合并的可能性 <a href="https://techcrunch.com/2026/06/12/spacex-president-gwynne-shotwell-just-gave-another-hint-at-a-tesla-merger/" target="_blank" class="news-ref">[TechCrunch]</a>。</li></ul></td></tr><tr><td style='font-weight:700;color:#0052cc;vertical-align:top'>#具身智能与物理世界AI大额融资</td><td><ul><li>贝索斯旗下 Prometheus 完成 120 亿美元巨额融资，旨在构建面向物理世界的‘通用人工智能工程师’，加速重工业和药物设计自动化，估值达 410 亿美元 <a href="https://techcrunch.com/2026/06/11/jeff-bezoss-prometheus-raises-12b-to-build-an-artificial-general-engineer-for-the-physical-world/" target="_blank" class="news-ref">[TechCrunch]</a>。</li><li>BEV（鸟瞰图）技术跨界杀入具身智能，解决机器人真实世界数据 Scaling 难题 <a href="https://www.qbitai.com/2026/06/434761.html" target="_blank" class="news-ref">[量子位]</a>；通用型工厂机器人公司 Theker 完成 8500 万美元融资，主打可重构非专科机器人 <a href="https://techcrunch.com/2026/06/11/theker-just-raised-85m-to-build-the-factory-robot-that-doesnt-specialize-in-anything/" target="_blank" class="news-ref">[TechCrunch]</a>。</li><li>专家指出机器人领域可能不会出现类似于 ChatGPT 这样的单一突破革命，而是多形态、高度依赖 AI 场景的渐进式演进 <a href="https://www.jiqizhixin.com/articles/2026-06-12-5" target="_blank" class="news-ref">[机器之心]</a>。</li></ul></td></tr><tr><td style='font-weight:700;color:#0052cc;vertical-align:top'>#智能体实战测试与代码自循环</td><td><ul><li>UC 伯克利发布高难度智能体基准测试（号称智能体最后的考试），结果显示最强智能体 Fable 5 在真实复杂任务上表现不敌 GPT-5.5 <a href="https://www.qbitai.com/2026/06/434774.html" target="_blank" class="news-ref">[量子位]</a>。</li><li>Anthropic 透露其代码库中超过 80% 的代码已由 Claude 撰写，揭示了‘当 AI 构建自身’（递归 AI）的行业新常态 <a href="https://www.jiqizhixin.com/articles/2026-06-12-3" target="_blank" class="news-ref">[机器之心]</a>。</li><li>2026奇点智能产品大会官宣，行业主战场从单一功能交付全面走向多 Agent 协作的生态网络重组 <a href="https://www.qbitai.com/2026/06/435105.html" target="_blank" class="news-ref">[量子位]</a>。</li></ul></td></tr><tr><td style='font-weight:700;color:#0052cc;vertical-align:top'>#智能汽车与前沿自动驾驶革新</td><td><ul><li>千里科技全资收购毫米波融合雷达公司‘融感科技’，补齐智能驾驶全栈闭环雷达短板 <a href="https://www.qbitai.com/2026/06/435196.html" target="_blank" class="news-ref">[量子位]</a>。</li><li>Waymo 推出每月 30 美元的‘Waymo Premier’会员服务，为用户提供优先接单和 10% 返现等特权 <a href="https://www.theverge.com/transportation/947974/waymo-premier-monthly-membership-perks-priority-cash-back" target="_blank" class="news-ref">[The Verge]</a>。</li><li>宝马发布 Neue Klasse M 概念车，将下一代电动车技术带入赛车领域；而法拉利首款四门电动轿车 Luce 极具颠覆性的设计引发车迷两极分化的争议 <a href="https://www.theverge.com/transportation/948635/bmw-neue-klasse-m-concept-motorsports-ev" target="_blank" class="news-ref">[The Verge]</a>,<a href="https://www.theverge.com/transportation/938513/ferrari-luce-ev" target="_blank" class="news-ref">[The Verge]</a>。</li></ul></td></tr></tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div id="tab3" class="tab-content">
+            <div class="chart-row">
+                <div id="chart-bar" class="chart-box"></div>
+                <div id="chart-line" class="chart-box"></div>
+            </div>
+            
+            <div class="card">
+                <h3>👥 用户画像与机会点</h3>
+                <div class="analysis-grid">
+                    <div><h4 style="color:#2980b9; margin-bottom:10px;">📊 市场风向</h4><ul><li>多模态生成正朝着超低延迟与端侧加速方向演进。伴随硬件优化和算法蒸馏，例如 <strong>Wan2.2 14B Fast Preview</strong><a href="https://huggingface.co/spaces/r3gm/wan2-2-fp8da-aoti-preview-2" target="_blank" class="news-ref" style="background:rgba(255,159,67,0.15);color:#e67e22">🔗</a> 和 <strong>Wan2.2 S2V</strong><a href="https://huggingface.co/spaces/Wan-AI/Wan2.2-S2V" target="_blank" class="news-ref" style="background:rgba(255,159,67,0.15);color:#e67e22">🔗</a> 大幅缩短了视频和音频同步生成的等待时间；同时，依托浏览器渲染技术的 <strong>Bonsai Image WebGPU</strong><a href="https://huggingface.co/spaces/webml-community/bonsai-image-webgpu" target="_blank" class="news-ref" style="background:rgba(255,159,67,0.15);color:#e67e22">🔗</a> 与 <strong>Gemma 4 WebGPU</strong><a href="https://huggingface.co/spaces/webml-community/Gemma-4-WebGPU" target="_blank" class="news-ref" style="background:rgba(255,159,67,0.15);color:#e67e22">🔗</a> 预示着‘无服务器、零 GPU 门槛’的本地私密计算正成为大势所趋。</li><li>3D 生成与空间重建技术实现爆发，快速打通虚拟与物理世界的边界。例如 <strong>TRELLIS.2</strong><a href="https://huggingface.co/spaces/microsoft/TRELLIS.2" target="_blank" class="news-ref" style="background:rgba(255,159,67,0.15);color:#e67e22">🔗</a> 与 <strong>Hunyuan3D-2.0</strong><a href="https://huggingface.co/spaces/tencent/Hunyuan3D-2" target="_blank" class="news-ref" style="background:rgba(255,159,67,0.15);color:#e67e22">🔗</a> 实现了从单图到高保真 3D 资产的十秒级生成，为具身智能的数据仿真提供了源源不断的资产库。</li></ul></div>
+                    <div><h4 style="color:#c0392b; margin-bottom:10px;">😡 用户痛点</h4><ul><li><strong>数据处理与开发流程痛点</strong>：传统工作流中，AI 代码调试和模型格式转换繁琐。例如 <strong>Her · हेर</strong><a href="https://huggingface.co/spaces/build-small-hackathon/her" target="_blank" class="news-ref" style="background:rgba(255,159,67,0.15);color:#e67e22">🔗</a> 针对 Claude Code 会话提供了优秀的‘侦探式’调试支持，解决了开发者定位 Agent 生成代码错误的痛点；而 <strong>GGUF My Repo</strong><a href="https://huggingface.co/spaces/ggml-org/gguf-my-repo" target="_blank" class="news-ref" style="background:rgba(255,159,67,0.15);color:#e67e22">🔗</a> 则解决了模型量化门槛高、难以快速部署到端侧的硬件适配痛点。</li><li><strong>多媒体后期编辑与修复痛点</strong>：传统图像和音视频后期需要多重工具交替使用。例如 <strong>Omni Image Editor</strong><a href="https://huggingface.co/spaces/selfit-camera/Omni-Image-Editor" target="_blank" class="news-ref" style="background:rgba(255,159,67,0.15);color:#e67e22">🔗</a> 整合了去水印、无损放大等功能，<strong>Remove Silence From Audio</strong><a href="https://huggingface.co/spaces/NeuralFalcon/Remove-Silence-From-Audio" target="_blank" class="news-ref" style="background:rgba(255,159,67,0.15);color:#e67e22">🔗</a> 则直接解决了音频剪辑中手动切除空白期的繁琐机械劳动。</li></ul></div>
+                    <div><h4 style="color:#27ae60; margin-bottom:10px;">😍 产品爽点</h4><ul><li><strong>前沿的三维与实时交互震撼体验</strong>：例如 <strong>Fable 5 Watch Movement</strong><a href="https://huggingface.co/spaces/quanghuynt14/fable-5-watch-movement" target="_blank" class="news-ref" style="background:rgba(255,159,67,0.15);color:#e67e22">🔗</a> 展示了由智能体完全使用 Three.js 程序化生成的机械手表机芯，复杂的齿轮咬合与物理物理联动令人惊叹；同时，<strong>Qwen Image Multiple Angles 3D Camera</strong><a href="https://huggingface.co/spaces/multimodalart/qwen-image-multiple-angles-3d-camera" target="_blank" class="news-ref" style="background:rgba(255,159,67,0.15);color:#e67e22">🔗</a> 能够直接将单张 2D 图像进行多视角三维相机重构，带来了宛如置身实地的 3D 交互冲击。</li><li><strong>高度拟真与表现力的多模态融合</strong>：例如 <strong>LatentSync</strong><a href="https://huggingface.co/spaces/fffiloni/LatentSync" target="_blank" class="news-ref" style="background:rgba(255,159,67,0.15);color:#e67e22">🔗</a> 实现了极高保真度、音视频完美对齐的口型同步，配合 <strong>OmniVoice</strong><a href="https://huggingface.co/spaces/k2-fsa/OmniVoice" target="_blank" class="news-ref" style="background:rgba(255,159,67,0.15);color:#e67e22">🔗</a> 支持 600 多种语言的高质量声音克隆，让跨国界、跨语种的数字人交付达到了真伪难辨的惊艳地步。</li></ul></div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>🧰 精选新工具 (Top 30)</h3>
+                <div class="table-wrapper">
+                    <table class="tools-table">
+                        <thead>
+                            <tr>
+                                <th style="min-width:120px">工具名称</th>
+                                <th style="min-width:80px">来源</th>
+                                <th style="min-width:60px">热度</th>
+                                <th style="min-width:100px">类型</th>
+                                <th style="min-width:200px">简介</th>
+                            </tr>
+                        </thead>
+                        <tbody><tr><td><a href='https://huggingface.co/spaces/gokaygokay/Tile-Upscaler' target='_blank' class='tool-name-link'>Tile Upscaler</a></td><td><span class='source-btn src-hf'>HuggingFace</span></td><td><span class='tool-hot'>996</span></td><td><span class='tool-cat'>🚀 模型/开发空间</span></td><td style='font-size:14px;color:#555;line-height:1.6'>利用瓷砖感知 AI 升级和增强图像</td></tr><tr><td><a href='https://huggingface.co/spaces/hkchengrex/MMAudio' target='_blank' class='tool-name-link'>MMAudio — generating synchronized audio from video/text</a></td><td><span class='source-btn src-hf'>HuggingFace</span></td><td><span class='tool-hot'>964</span></td><td><span class='tool-cat'>🚀 模型/开发空间</span></td><td style='font-size:14px;color:#555;line-height:1.6'>根据文本提示为视频生成同步音频</td></tr><tr><td><a href='https://huggingface.co/spaces/enzostvs/zero-gpu-spaces' target='_blank' class='tool-name-link'>— Zero GPU Spaces —</a></td><td><span class='source-btn src-hf'>HuggingFace</span></td><td><span class='tool-hot'>963</span></td><td><span class='tool-cat'>🚀 模型/开发空间</span></td><td style='font-size:14px;color:#555;line-height:1.6'>使用 ZERO-GPU 的空间列表</td></tr><tr><td><a href='https://huggingface.co/spaces/TTS-AGI/TTS-Arena-V2' target='_blank' class='tool-name-link'>TTS Arena V2</a></td><td><span class='source-btn src-hf'>HuggingFace</span></td><td><span class='tool-hot'>961</span></td><td><span class='tool-cat'>🚀 模型/开发空间</span></td><td style='font-size:14px;color:#555;line-height:1.6'>投票选出哪种 TTS 语音听起来更自然</td></tr><tr><td><a href='https://huggingface.co/spaces/black-forest-labs/FLUX.2-dev' target='_blank' class='tool-name-link'>FLUX.2 [dev]</a></td><td><span class='source-btn src-hf'>HuggingFace</span></td><td><span class='tool-hot'>955</span></td><td><span class='tool-cat'>🚀 模型/开发空间</span></td><td style='font-size:14px;color:#555;line-height:1.6'>从文本和可选照片生成或编辑图像</td></tr><tr><td><a href='https://stackie.ai?utm_source=toolify' target='_blank' class='tool-name-link'>Stackie.AI</a></td><td><span class='source-btn src-tf'>Toolify</span></td><td><span class='tool-hot'>-</span></td><td><span class='tool-cat'>🎓 教育/语言</span></td><td style='font-size:14px;color:#555;line-height:1.6'>用于记录日记、跟踪习惯、管理信息和人工智能辅助学习的生活记录器。</td></tr><tr><td><a href='https://www.toolify.ai/tool/fastmoro-ai' target='_blank' class='tool-name-link'>FastMoro AI</a></td><td><span class='source-btn src-tf'>Toolify</span></td><td><span class='tool-hot'>-</span></td><td><span class='tool-cat'>👨‍💻 编程/开发</span></td><td style='font-size:14px;color:#555;line-height:1.6'>一体化人工智能视频生成器和图像创作工作室。</td></tr><tr><td><a href='https://www.toolify.ai/tool/seko' target='_blank' class='tool-name-link'>Seko</a></td><td><span class='source-btn src-tf'>Toolify</span></td><td><span class='tool-hot'>-</span></td><td><span class='tool-cat'>🎥 视频生成/处理</span></td><td style='font-size:14px;color:#555;line-height:1.6'>具有多集工作流程功能的先进人工智能视频生成平台。</td></tr><tr><td><a href='https://www.toolify.ai/tool/arnis-minecraft' target='_blank' class='tool-name-link'>Arnis Minecraft</a></td><td><span class='source-btn src-tf'>Toolify</span></td><td><span class='tool-hot'>-</span></td><td><span class='tool-cat'>🛠️ 综合工具箱</span></td><td style='font-size:14px;color:#555;line-height:1.6'>从真实世界位置在线生成可玩的 Minecraft 地图。</td></tr><tr><td><a href='https://www.toolify.ai/tool/free-receipt-maker' target='_blank' class='tool-name-link'>Free Receipt Maker</a></td><td><span class='source-btn src-tf'>Toolify</span></td><td><span class='tool-hot'>-</span></td><td><span class='tool-cat'>🛠️ 综合工具箱</span></td><td style='font-size:14px;color:#555;line-height:1.6'>简单、快速、免费 - 立即创建专业的品牌收据​​。</td></tr><tr><td><a href='https://huggingface.co/spaces/briaai/BRIA-RMBG-2.0' target='_blank' class='tool-name-link'>BRIA RMBG 2.0</a></td><td><span class='source-btn src-hf'>HuggingFace</span></td><td><span class='tool-hot'>948</span></td><td><span class='tool-cat'>🚀 模型/开发空间</span></td><td style='font-size:14px;color:#555;line-height:1.6'>从任何图像中删除背景</td></tr><tr><td><a href='https://huggingface.co/spaces/huggingface-projects/diffuse-the-rest' target='_blank' class='tool-name-link'>Diffuse The Rest</a></td><td><span class='source-btn src-hf'>HuggingFace</span></td><td><span class='tool-hot'>929</span></td><td><span class='tool-cat'>🚀 模型/开发空间</span></td><td style='font-size:14px;color:#555;line-height:1.6'>使用稳定扩散从文本生成图像</td></tr><tr><td><a href='https://huggingface.co/spaces/Qwen/Qwen-Image' target='_blank' class='tool-name-link'>Qwen Image</a></td><td><span class='source-btn src-hf'>HuggingFace</span></td><td><span class='tool-hot'>909</span></td><td><span class='tool-cat'>🚀 模型/开发空间</span></td><td style='font-size:14px;color:#555;line-height:1.6'>根据文本提示生成高质量图像</td></tr><tr><td><a href='https://huggingface.co/spaces/HuggingFaceH4/zephyr-chat' target='_blank' class='tool-name-link'>Zephyr Chat</a></td><td><span class='source-btn src-hf'>HuggingFace</span></td><td><span class='tool-hot'>904</span></td><td><span class='tool-cat'>🚀 模型/开发空间</span></td><td style='font-size:14px;color:#555;line-height:1.6'>与 AI 模型聊天</td></tr><tr><td><a href='https://huggingface.co/spaces/black-forest-labs/FLUX.2-klein-9B' target='_blank' class='tool-name-link'>FLUX.2 [Klein] 9B</a></td><td><span class='source-btn src-hf'>HuggingFace</span></td><td><span class='tool-hot'>888</span></td><td><span class='tool-cat'>🚀 模型/开发空间</span></td><td style='font-size:14px;color:#555;line-height:1.6'>根据文本提示生成或编辑图像</td></tr><tr><td><a href='https://huggingface.co/spaces/briaai/BRIA-RMBG-1.4' target='_blank' class='tool-name-link'>BRIA RMBG 1.4</a></td><td><span class='source-btn src-hf'>HuggingFace</span></td><td><span class='tool-hot'>879</span></td><td><span class='tool-cat'>🚀 模型/开发空间</span></td><td style='font-size:14px;color:#555;line-height:1.6'>立即从图像中删除背景</td></tr><tr><td><a href='https://huggingface.co/spaces/signsur4739379373/qwen-image-edit-rapid-aio-nsfw-v23' target='_blank' class='tool-name-link'>Qwen Image Edit Rapid AIO (NSFW)</a></td><td><span class='source-btn src-hf'>HuggingFace</span></td><td><span class='tool-hot'>866</span></td><td><span class='tool-cat'>🚀 模型/开发空间</span></td><td style='font-size:14px;color:#555;line-height:1.6'>通过文字说明快速编辑图像</td></tr><tr><td><a href='https://huggingface.co/spaces/Qwen/Qwen3-Demo' target='_blank' class='tool-name-link'>Qwen3 Demo</a></td><td><span class='source-btn src-hf'>HuggingFace</span></td><td><span class='tool-hot'>857</span></td><td><span class='tool-cat'>🚀 模型/开发空间</span></td><td style='font-size:14px;color:#555;line-height:1.6'>与人工智能助手聊天，在回答之前先思考一下</td></tr><tr><td><a href='https://huggingface.co/spaces/hf-audio/whisper-large-v3' target='_blank' class='tool-name-link'>Whisper Large V3</a></td><td><span class='source-btn src-hf'>HuggingFace</span></td><td><span class='tool-hot'>847</span></td><td><span class='tool-cat'>🚀 模型/开发空间</span></td><td style='font-size:14px;color:#555;line-height:1.6'>将音频或 YouTube 视频转录为文本</td></tr><tr><td><a href='https://huggingface.co/spaces/shariqfarooq/ZoeDepth' target='_blank' class='tool-name-link'>ZoeDepth</a></td><td><span class='source-btn src-hf'>HuggingFace</span></td><td><span class='tool-hot'>827</span></td><td><span class='tool-cat'>🚀 模型/开发空间</span></td><td style='font-size:14px;color:#555;line-height:1.6'>从单个图像预测深度图</td></tr><tr><td><a href='https://huggingface.co/spaces/IndexTeam/IndexTTS-2-Demo' target='_blank' class='tool-name-link'>IndexTTS 2 Demo</a></td><td><span class='source-btn src-hf'>HuggingFace</span></td><td><span class='tool-hot'>811</span></td><td><span class='tool-cat'>🚀 模型/开发空间</span></td><td style='font-size:14px;color:#555;line-height:1.6'>通过语音和情感控制从文本生成富有表现力的语音</td></tr><tr><td><a href='https://huggingface.co/spaces/tonyassi/face-swap' target='_blank' class='tool-name-link'>Face Swap</a></td><td><span class='source-btn src-hf'>HuggingFace</span></td><td><span class='tool-hot'>796</span></td><td><span class='tool-cat'>🚀 模型/开发空间</span></td><td style='font-size:14px;color:#555;line-height:1.6'>图像深度伪造（未经审查）</td></tr><tr><td><a href='https://huggingface.co/spaces/multimodalart/flux-fill-outpaint' target='_blank' class='tool-name-link'>Flux Fill Outpainting</a></td><td><span class='source-btn src-hf'>HuggingFace</span></td><td><span class='tool-hot'>783</span></td><td><span class='tool-cat'>🚀 模型/开发空间</span></td><td style='font-size:14px;color:#555;line-height:1.6'>通过 AI 外绘将图像扩展至自定义尺寸</td></tr><tr><td><a href='https://huggingface.co/spaces/prithivMLmods/Qwen-Image-Edit-2509-LoRAs-Fast' target='_blank' class='tool-name-link'>Qwen-Image-Edit-2509-LoRAs-Fast</a></td><td><span class='source-btn src-hf'>HuggingFace</span></td><td><span class='tool-hot'>772</span></td><td><span class='tool-cat'>🚀 模型/开发空间</span></td><td style='font-size:14px;color:#555;line-height:1.6'>Qwen Image Edit LoRA 集合的演示</td></tr><tr><td><a href='https://huggingface.co/spaces/huggingface/ai-deadlines' target='_blank' class='tool-name-link'>AI Deadlines</a></td><td><span class='source-btn src-hf'>HuggingFace</span></td><td><span class='tool-hot'>771</span></td><td><span class='tool-cat'>🚀 模型/开发空间</span></td><td style='font-size:14px;color:#555;line-height:1.6'>查找即将举行的人工智能会议和研讨会的截止日期</td></tr><tr><td><a href='https://huggingface.co/spaces/ovi054/image-to-prompt' target='_blank' class='tool-name-link'>Image To Prompt</a></td><td><span class='source-btn src-hf'>HuggingFace</span></td><td><span class='tool-hot'>763</span></td><td><span class='tool-cat'>🚀 模型/开发空间</span></td><td style='font-size:14px;color:#555;line-height:1.6'>为图像生成详细的标题</td></tr><tr><td><a href='https://huggingface.co/spaces/KingNish/Realtime-FLUX' target='_blank' class='tool-name-link'>FLUX Realtime</a></td><td><span class='source-btn src-hf'>HuggingFace</span></td><td><span class='tool-hot'>761</span></td><td><span class='tool-cat'>🚀 模型/开发空间</span></td><td style='font-size:14px;color:#555;line-height:1.6'>实时高质量图像</td></tr><tr><td><a href='https://huggingface.co/spaces/tencent/SongGeneration' target='_blank' class='tool-name-link'>Song Generation</a></td><td><span class='source-btn src-hf'>HuggingFace</span></td><td><span class='tool-hot'>744</span></td><td><span class='tool-cat'>🚀 模型/开发空间</span></td><td style='font-size:14px;color:#555;line-height:1.6'>根据您的歌词和提示生成歌曲</td></tr><tr><td><a href='https://huggingface.co/spaces/multimodalart/nano-banana' target='_blank' class='tool-name-link'>Nano Banana PRO</a></td><td><span class='source-btn src-hf'>HuggingFace</span></td><td><span class='tool-hot'>725</span></td><td><span class='tool-cat'>🚀 模型/开发空间</span></td><td style='font-size:14px;color:#555;line-height:1.6'>面向 Hugging Face PRO 用户的 Nano Banana</td></tr><tr><td><a href='https://huggingface.co/spaces/Shitao/OmniGen' target='_blank' class='tool-name-link'>OmniGen</a></td><td><span class='source-btn src-hf'>HuggingFace</span></td><td><span class='tool-hot'>704</span></td><td><span class='tool-cat'>🚀 模型/开发空间</span></td><td style='font-size:14px;color:#555;line-height:1.6'>图像生成/识别/休息</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function switchTab(id, btn) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            btn.classList.add('active');
+            if(id === 'tab3') { 
+                setTimeout(() => { 
+                    barChart.resize(); 
+                    lineChart.resize(); 
+                }, 100); 
+            }
+        }
+        
+        var barChart = echarts.init(document.getElementById('chart-bar'));
+        barChart.setOption({ 
+            title: { text: '今日工具赛道', left: 'center', textStyle:{fontSize:14} }, 
+            tooltip: { trigger: 'axis' }, 
+            grid: { bottom: '10%', top:'20%', containLabel: true }, 
+            xAxis: { type: 'category', data: ["\ud83d\ude80 \u6a21\u578b/\u5f00\u53d1\u7a7a\u95f4", "\ud83d\udc68\u200d\ud83d\udcbb \u7f16\u7a0b/\u5f00\u53d1", "\ud83e\udde0 \u901a\u7528AI\u5e94\u7528", "\ud83d\udee0\ufe0f \u7efc\u5408\u5de5\u5177\u7bb1", "\ud83e\udd16 \u667a\u80fd\u4f53/RPA", "\ud83d\udcdd \u5199\u4f5c/\u5185\u5bb9", "\ud83c\udfa8 AI\u7ed8\u753b/\u8bbe\u8ba1", "\ud83c\udfa5 \u89c6\u9891\u751f\u6210/\u5904\u7406", "\ud83d\udde3\ufe0f \u8bed\u97f3/\u6570\u5b57\u4eba", "\ud83d\udcac \u804a\u5929/\u4f34\u4fa3", "\ud83d\udd0d \u641c\u7d22/\u7814\u7a76", "\ud83c\udf93 \u6559\u80b2/\u8bed\u8a00", "\ud83d\udce3 \u8425\u9500/SEO", "\ud83d\udcc5 \u6548\u7387/\u751f\u4ea7\u529b", "\ud83d\udee1\ufe0f \u5b89\u5168/\u68c0\u6d4b"], axisLabel: { rotate: 30, interval: 0, fontSize:10 } }, 
+            yAxis: { type: 'value' }, 
+            series: [{ type: 'bar', data: [1224, 154, 153, 89, 50, 33, 30, 29, 28, 27, 24, 21, 19, 13, 8], itemStyle: { color: '#3498db', borderRadius:[4,4,0,0] } }] 
+        });
+        
+        var lineChart = echarts.init(document.getElementById('chart-line'));
+        lineChart.setOption({ 
+            title: { text: '发布趋势', left: 'center', textStyle:{fontSize:14} }, 
+            tooltip: { trigger: 'axis' }, 
+            grid: { bottom: '10%', top:'20%', containLabel: true }, 
+            xAxis: { type: 'category', data: ["05-31", "06-01", "06-02", "06-03", "06-04", "06-05", "06-06", "06-07", "06-08", "06-09", "06-10", "06-11", "06-12", "06-13"], axisLabel:{fontSize:10} }, 
+            yAxis: { type: 'value' }, 
+            series: [{ type: 'line', data: [4, 18, 16, 47, 25, 24, 32, 14, 42, 38, 42, 58, 104, 3], smooth: true, areaStyle: {opacity:0.2}, itemStyle: { color: '#2ecc71' } }] 
+        });
+        
+        window.onresize = function() { barChart.resize(); lineChart.resize(); };
+    </script>
+</body>
+</html>
